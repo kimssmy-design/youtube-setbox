@@ -65,6 +65,7 @@ main{padding:24px;max-width:1280px;margin:0 auto;}
 .play-btn svg{width:16px;height:16px;fill:#fff;margin-left:2px;}
 .video-card:hover .play-btn{opacity:1;}
 .yt-tag{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.6);border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;color:#ff4444;}
+.dur-tag{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.65);border-radius:3px;padding:2px 6px;font-size:10px;font-weight:700;color:#fff;}
 .card-del{position:absolute;top:7px;left:7px;width:26px;height:26px;background:rgba(0,0,0,.55);border:none;border-radius:50%;color:#fff;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;z-index:10;}
 .video-card:hover .card-del{opacity:1;}
 .card-del:hover{background:rgba(210,30,45,.85);}
@@ -176,6 +177,8 @@ main{padding:24px;max-width:1280px;margin:0 auto;}
     <select class="field" id="minorSelect"></select>
     <label class="field-label">영상 제목 (비워두면 자동)</label>
     <input class="field" id="titleInput" placeholder="직접 입력하거나 비워두세요">
+    <label class="field-label">영상 길이 (예: 3:25 또는 12:08)</label>
+    <input class="field" id="durationInput" placeholder="mm:ss 형식으로 입력">
     <div class="btn-row">
       <button class="btn-cancel" onclick="closeModal('addModal')">취소</button>
       <button class="btn-ok" id="saveVideoBtn" onclick="doAddVideo()">저장하기 💾</button>
@@ -297,7 +300,9 @@ function renderMain() {
     let inner = '';
     if (hasSubs) {
       inner = m.minors.map((sName, si) => {
-        const vids = videos.filter(v => v.gi===curGrade && v.mi===mi && v.si===si);
+        const vids = videos
+          .filter(v => v.gi===curGrade && v.mi===mi && v.si===si)
+          .sort((a,b) => (a.durSec||99999) - (b.durSec||99999));
         return `
           <div class="minor-section">
             <div class="minor-header">
@@ -311,7 +316,9 @@ function renderMain() {
           </div>`;
       }).join('');
     } else {
-      const vids = videos.filter(v => v.gi===curGrade && v.mi===mi);
+      const vids = videos
+        .filter(v => v.gi===curGrade && v.mi===mi)
+        .sort((a,b) => (a.durSec||99999) - (b.durSec||99999));
       inner = `<div class="video-grid">${vids.length ? vids.map(v=>cardHtml(v,'')).join('') : `<div class="no-video">아직 등록된 영상이 없어요</div>`}</div>`;
     }
     return `
@@ -328,6 +335,9 @@ function renderMain() {
 }
 
 function cardHtml(v, subName) {
+  const durTag = v.duration
+    ? `<span class="dur-tag">⏱ ${v.duration}</span>`
+    : '';
   return `
     <div class="video-card">
       <button class="card-del" onclick="deleteVideo('${v.id}')" title="삭제">×</button>
@@ -336,6 +346,7 @@ function cardHtml(v, subName) {
           <img src="https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg" loading="lazy">
           <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
           <span class="yt-tag">YouTube</span>
+          ${durTag}
         </div>
         <div class="card-info">
           <div class="card-title">${v.title}</div>
@@ -364,6 +375,7 @@ function switchGrade(idx) {
 function openAddVideo() {
   document.getElementById('urlInput').value = '';
   document.getElementById('titleInput').value = '';
+  document.getElementById('durationInput').value = '';
   document.getElementById('thumbPreview').classList.remove('show');
   fillGradeSelect();
   openModal('addModal');
@@ -408,15 +420,27 @@ async function doAddVideo() {
   const mi = +document.getElementById('majorSelect').value;
   const si = +document.getElementById('minorSelect').value;
   const title = document.getElementById('titleInput').value.trim() || '제목 없음';
+  const duration = document.getElementById('durationInput').value.trim();
+  // mm:ss → 초로 변환해서 정렬에 사용
+  const durSec = parseDuration(duration);
   const btn = document.getElementById('saveVideoBtn');
   btn.textContent='저장 중...'; btn.disabled=true;
   try {
-    await addDoc(collection(db,'moral_videos_list'), { gi, mi, si, videoId:id, title });
+    await addDoc(collection(db,'moral_videos_list'), { gi, mi, si, videoId:id, title, duration, durSec });
     closeModal('addModal');
     curGrade = gi;
     renderGradeTabs();
   } catch(e) { alert('저장 실패: '+e.message); }
   finally { btn.textContent='저장하기 💾'; btn.disabled=false; }
+}
+
+// mm:ss 또는 h:mm:ss → 초
+function parseDuration(str) {
+  if (!str) return 99999; // 시간 없으면 맨 뒤로
+  const parts = str.split(':').map(Number);
+  if (parts.length === 2) return parts[0]*60 + parts[1];
+  if (parts.length === 3) return parts[0]*3600 + parts[1]*60 + parts[2];
+  return 99999;
 }
 async function deleteVideo(id) {
   const v = videos.find(v=>v.id===id);
