@@ -69,7 +69,7 @@ main{padding:24px;max-width:1280px;margin:0 auto;}
 .jisike-preview{display:none;margin-top:9px;border-radius:9px;overflow:hidden;border:1px solid var(--border);}
 .jisike-preview.show{display:block;}
 .jisike-mock{background:linear-gradient(135deg,#1a3a6b,#2e6db4);color:#fff;font-size:18px;font-weight:900;text-align:center;padding:28px;letter-spacing:1px;}
-.jisike-thumb{position:relative;padding-top:56.25%;background:linear-gradient(135deg,#1a3a6b,#2e6db4);display:flex;align-items:center;justify-content:center;}
+.jisike-thumb{position:relative;padding-top:56.25%;background:linear-gradient(135deg,#1a3a6b,#2e6db4);}
 .jisike-thumb-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
 .jisike-thumb-inner .ji-logo{font-size:22px;font-weight:900;color:#fff;letter-spacing:1px;}
 .jisike-thumb-inner .ji-sub{font-size:11px;color:rgba(255,255,255,.7);}
@@ -334,7 +334,7 @@ function renderMain() {
       inner = `<div class="video-grid">${vids.length ? vids.map(v=>cardHtml(v,'')).join('') : `<div class="no-video">아직 등록된 영상이 없어요</div>`}</div>`;
     }
     return `
-      <div class="major-section open" id="major-${curGrade}-${mi}">
+      <div class="major-section" id="major-${curGrade}-${mi}">
         <div class="major-header" onclick="toggleMajor('major-${curGrade}-${mi}')">
           <span class="major-badge ${BADGE[mi%5]}">${roman(mi+1)}</span>
           <span class="major-title">${m.major.replace(/^[Ⅰ-Ⅹ]+\.\s*/,'')}</span>
