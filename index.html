@@ -66,6 +66,14 @@ main{padding:24px;max-width:1280px;margin:0 auto;}
 .video-card:hover .play-btn{opacity:1;}
 .yt-tag{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.6);border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;color:#ff4444;}
 .dur-tag{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.65);border-radius:3px;padding:2px 6px;font-size:10px;font-weight:700;color:#fff;}
+.jisike-preview{display:none;margin-top:9px;border-radius:9px;overflow:hidden;border:1px solid var(--border);}
+.jisike-preview.show{display:block;}
+.jisike-mock{background:linear-gradient(135deg,#1a3a6b,#2e6db4);color:#fff;font-size:18px;font-weight:900;text-align:center;padding:28px;letter-spacing:1px;}
+.jisike-thumb{position:relative;padding-top:56.25%;background:linear-gradient(135deg,#1a3a6b,#2e6db4);display:flex;align-items:center;justify-content:center;}
+.jisike-thumb-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+.jisike-thumb-inner .ji-logo{font-size:22px;font-weight:900;color:#fff;letter-spacing:1px;}
+.jisike-thumb-inner .ji-sub{font-size:11px;color:rgba(255,255,255,.7);}
+.jisike-badge{position:absolute;bottom:6px;right:6px;background:rgba(26,58,107,.85);border-radius:3px;padding:2px 6px;font-size:9px;font-weight:700;color:#7eb8ff;}
 .card-del{position:absolute;top:7px;left:7px;width:26px;height:26px;background:rgba(0,0,0,.55);border:none;border-radius:50%;color:#fff;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;z-index:10;}
 .video-card:hover .card-del{opacity:1;}
 .card-del:hover{background:rgba(210,30,45,.85);}
@@ -163,11 +171,15 @@ main{padding:24px;max-width:1280px;margin:0 auto;}
   <div class="sheet">
     <div class="drag-handle"></div>
     <h2>🎬 영상 추가하기</h2>
-    <label class="field-label">YouTube URL</label>
-    <input class="field" id="urlInput" placeholder="https://youtu.be/..." oninput="onUrlInput(this.value)">
+    <label class="field-label">영상 URL (YouTube 또는 지식채널e)</label>
+    <input class="field" id="urlInput" placeholder="https://youtu.be/... 또는 https://jisike.ebs.co.kr/..." oninput="onUrlInput(this.value)">
     <div class="thumb-preview" id="thumbPreview">
       <img id="thumbImg" src="" alt="">
       <div class="thumb-preview-label">썸네일 미리보기</div>
+    </div>
+    <div class="jisike-preview" id="jisikePreview">
+      <div class="jisike-mock">📺 지식채널e</div>
+      <div class="thumb-preview-label">지식채널e 링크로 연결됩니다</div>
     </div>
     <label class="field-label">학년</label>
     <select class="field" id="gradeSelect" onchange="onGradeSelectChange()"></select>
@@ -335,17 +347,26 @@ function renderMain() {
 }
 
 function cardHtml(v, subName) {
-  const durTag = v.duration
-    ? `<span class="dur-tag">⏱ ${v.duration}</span>`
-    : '';
+  const durTag = v.duration ? `<span class="dur-tag">⏱ ${v.duration}</span>` : '';
+  const isYt = v.type === 'youtube' || v.videoId; // 구버전 호환
+  const href = isYt ? `https://youtu.be/${v.videoId}` : v.url;
+  const thumb = isYt
+    ? `<img src="https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg" loading="lazy">
+       <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+       <span class="yt-tag">YouTube</span>`
+    : `<div class="jisike-thumb">
+         <div class="jisike-thumb-inner">
+           <span class="ji-logo">📺 지식채널e</span>
+           <span class="ji-sub">클릭하면 EBS로 이동합니다</span>
+         </div>
+         <span class="jisike-badge">EBS</span>
+       </div>`;
   return `
     <div class="video-card">
       <button class="card-del" onclick="deleteVideo('${v.id}')" title="삭제">×</button>
-      <a class="card-inner" href="https://youtu.be/${v.videoId}" target="_blank">
+      <a class="card-inner" href="${href}" target="_blank">
         <div class="thumb-wrap">
-          <img src="https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg" loading="lazy">
-          <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
-          <span class="yt-tag">YouTube</span>
+          ${thumb}
           ${durTag}
         </div>
         <div class="card-info">
@@ -377,6 +398,7 @@ function openAddVideo() {
   document.getElementById('titleInput').value = '';
   document.getElementById('durationInput').value = '';
   document.getElementById('thumbPreview').classList.remove('show');
+  document.getElementById('jisikePreview').classList.remove('show');
   fillGradeSelect();
   openModal('addModal');
 }
@@ -401,12 +423,21 @@ function fillMinorSelect() {
     : '<option value="0">해당 없음</option>';
 }
 function onUrlInput(val) {
-  const id = extractId(val.trim());
-  const box = document.getElementById('thumbPreview');
-  if (id) { document.getElementById('thumbImg').src=`https://img.youtube.com/vi/${id}/mqdefault.jpg`; box.classList.add('show'); }
-  else box.classList.remove('show');
+  const url = val.trim();
+  const ytId = extractYoutubeId(url);
+  const isEbs = url.includes('ebs.co.kr');
+  const thumbBox  = document.getElementById('thumbPreview');
+  const jisikeBox = document.getElementById('jisikePreview');
+  if (ytId) {
+    document.getElementById('thumbImg').src = `https://img.youtube.com/vi/${ytId}/mqdefault.jpg`;
+    thumbBox.classList.add('show'); jisikeBox.classList.remove('show');
+  } else if (isEbs) {
+    thumbBox.classList.remove('show'); jisikeBox.classList.add('show');
+  } else {
+    thumbBox.classList.remove('show'); jisikeBox.classList.remove('show');
+  }
 }
-function extractId(url) {
+function extractYoutubeId(url) {
   for (const p of [/youtu\.be\/([^?&\s]+)/,/[?&]v=([^&\s]+)/,/shorts\/([^?/\s]+)/]) {
     const m=url.match(p); if(m) return m[1];
   }
@@ -414,19 +445,21 @@ function extractId(url) {
 }
 async function doAddVideo() {
   const url = document.getElementById('urlInput').value.trim();
-  const id = extractId(url);
-  if (!id) { alert('올바른 유튜브 URL을 입력해주세요.'); return; }
+  if (!url) { alert('URL을 입력해주세요.'); return; }
+  const ytId = extractYoutubeId(url);
+  const type = ytId ? 'youtube' : 'external';
   const gi = +document.getElementById('gradeSelect').value;
   const mi = +document.getElementById('majorSelect').value;
   const si = +document.getElementById('minorSelect').value;
   const title = document.getElementById('titleInput').value.trim() || '제목 없음';
   const duration = document.getElementById('durationInput').value.trim();
-  // mm:ss → 초로 변환해서 정렬에 사용
   const durSec = parseDuration(duration);
   const btn = document.getElementById('saveVideoBtn');
   btn.textContent='저장 중...'; btn.disabled=true;
   try {
-    await addDoc(collection(db,'moral_videos_list'), { gi, mi, si, videoId:id, title, duration, durSec });
+    const data = { gi, mi, si, type, url, title, duration, durSec };
+    if (ytId) data.videoId = ytId;
+    await addDoc(collection(db,'moral_videos_list'), data);
     closeModal('addModal');
     curGrade = gi;
     renderGradeTabs();
