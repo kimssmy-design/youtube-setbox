@@ -6,144 +6,158 @@
 <title>도덕 수업 영상 모음</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-:root {
-  --bg:#f5f6fa; --surface:#fff; --accent:#4263eb; --accent2:#e64980;
-  --text:#1c1e2e; --text-muted:#868e9e; --border:#e8eaf2;
-  --shadow-sm:0 1px 6px rgba(0,0,0,.06); --shadow-md:0 4px 20px rgba(0,0,0,.09); --r:12px;
+:root{
+  --bg:#fff; --bg2:#f7f7f7; --text:#111; --text-muted:#888;
+  --border:#e0e0e0; --border-dark:#222;
+  --shadow:0 1px 4px rgba(0,0,0,.08); --shadow-md:0 4px 16px rgba(0,0,0,.12); --r:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 
 /* ── 헤더 */
-header{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);display:flex;align-items:center;gap:12px;}
-.logo{width:32px;height:32px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-header h1{font-size:16px;font-weight:700;letter-spacing:-.3px;}
-.header-actions{margin-left:auto;display:flex;gap:8px;}
-.hdr-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 13px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:5px;}
-.hdr-btn:hover{border-color:var(--accent);color:var(--accent);}
+header{background:#fff;border-bottom:1px solid var(--border);padding:13px 24px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:12px;}
+.logo{font-size:20px;flex-shrink:0;line-height:1;}
+header h1{font-size:15px;font-weight:700;letter-spacing:-.3px;}
+.header-actions{margin-left:auto;display:flex;gap:6px;}
+.hdr-btn{background:none;border:1px solid var(--border);border-radius:6px;padding:6px 11px;font-size:11.5px;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.hdr-btn:hover{border-color:var(--text);color:var(--text);}
+/* 폰에서 텍스트 숨기고 이모지만 */
+.hdr-btn .btn-text{display:inline;}
 
 /* ── 학년 탭 */
-.grade-tabs{background:#fff;border-bottom:1px solid var(--border);padding:14px 24px 0;display:flex;gap:4px;overflow-x:auto;}
-.grade-tab{padding:8px 18px;border-radius:8px 8px 0 0;border:1px solid transparent;border-bottom:none;background:transparent;color:var(--text-muted);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;position:relative;bottom:-1px;flex-shrink:0;}
-.grade-tab:hover{color:var(--text);background:var(--bg);}
-.grade-tab.active{background:var(--bg);border-color:var(--border);color:var(--accent);font-weight:700;}
+.grade-tabs{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;display:flex;gap:0;overflow-x:auto;}
+.grade-tab{padding:11px 18px;border:none;border-bottom:2px solid transparent;background:transparent;color:var(--text-muted);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;flex-shrink:0;}
+.grade-tab:hover{color:var(--text);}
+.grade-tab.active{color:var(--text);font-weight:700;border-bottom-color:var(--text);}
 
 /* ── 본문 */
-main{padding:24px;max-width:1280px;margin:0 auto;}
+main{padding:20px 24px;max-width:1280px;margin:0 auto;}
 
 /* ── 대단원 */
-.major-section{margin-bottom:12px;}
-.major-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;user-select:none;transition:box-shadow .15s;}
-.major-header:hover{box-shadow:var(--shadow-sm);}
-.major-section.open .major-header{border-radius:var(--r) var(--r) 0 0;border-bottom-color:transparent;}
-.major-badge{font-size:11px;font-weight:900;padding:3px 10px;border-radius:20px;letter-spacing:.5px;flex-shrink:0;}
-.major-title{font-size:15px;font-weight:700;}
+.major-section{margin-bottom:8px;}
+.major-header{display:flex;align-items:center;gap:10px;padding:13px 16px;background:#fff;border:1px solid var(--border);border-radius:var(--r);cursor:pointer;user-select:none;transition:background .12s;}
+.major-header:hover{background:var(--bg2);}
+.major-section.open .major-header{border-radius:var(--r) var(--r) 0 0;border-bottom-color:transparent;background:var(--text);color:#fff;}
+.major-section.open .major-title{color:#fff;}
+.major-section.open .major-count{color:rgba(255,255,255,.6);}
+.major-section.open .major-chevron{color:rgba(255,255,255,.7);}
+.major-badge{font-size:10px;font-weight:900;padding:2px 8px;border-radius:4px;letter-spacing:.5px;flex-shrink:0;background:var(--text);color:#fff;}
+.major-section.open .major-badge{background:#fff;color:var(--text);}
+.major-title{font-size:14px;font-weight:700;}
 .major-count{font-size:11px;color:var(--text-muted);margin-left:auto;flex-shrink:0;}
-.major-chevron{font-size:13px;color:var(--text-muted);transition:transform .22s;margin-left:6px;flex-shrink:0;}
+.major-chevron{font-size:11px;color:var(--text-muted);transition:transform .2s;margin-left:4px;flex-shrink:0;}
 .major-section.open .major-chevron{transform:rotate(180deg);}
-.major-body{display:none;padding:16px;background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);margin-bottom:28px;}
+.major-body{display:none;padding:16px;background:#fff;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--r) var(--r);margin-bottom:20px;}
 .major-section.open .major-body{display:block;}
-.m0{background:#eef1ff;color:#4263eb;} .m1{background:#fff0f6;color:#c2255c;}
-.m2{background:#fff3e0;color:#d4651a;} .m3{background:#ebfbee;color:#2b8a3e;}
-.m4{background:#f3e8ff;color:#7048e8;}
 
 /* ── 중단원 */
-.minor-section{margin-bottom:22px;padding-left:4px;}
-.minor-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
-.minor-label{font-size:11px;font-weight:700;padding:2px 9px;border-radius:12px;background:var(--bg);border:1px solid var(--border);color:var(--text-muted);flex-shrink:0;}
-.minor-title{font-size:14px;font-weight:600;}
+.minor-section{margin-bottom:20px;}
+.minor-section:last-child{margin-bottom:0;}
+.minor-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.minor-num{font-size:11px;font-weight:700;color:var(--text-muted);min-width:18px;}
+.minor-title{font-size:13px;font-weight:600;color:var(--text);}
 .minor-count{font-size:11px;color:var(--text-muted);margin-left:auto;flex-shrink:0;}
 
 /* ── 영상 카드 */
-.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;padding-left:8px;}
-.video-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;text-decoration:none;color:inherit;transition:transform .18s,box-shadow .18s;display:block;box-shadow:var(--shadow-sm);position:relative;}
-.video-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);}
+.video-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;}
+.video-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:box-shadow .15s;display:block;box-shadow:var(--shadow);position:relative;}
+.video-card:hover{box-shadow:var(--shadow-md);}
 .thumb-wrap{position:relative;padding-top:56.25%;background:#eee;overflow:hidden;}
-.thumb-wrap img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .3s;}
-.video-card:hover .thumb-wrap img{transform:scale(1.05);}
-.play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;background:rgba(0,0,0,.45);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;backdrop-filter:blur(2px);}
-.play-btn svg{width:16px;height:16px;fill:#fff;margin-left:2px;}
+.thumb-wrap img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .25s;}
+.video-card:hover .thumb-wrap img{transform:scale(1.03);}
+.play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;background:rgba(0,0,0,.5);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;}
+.play-btn svg{width:14px;height:14px;fill:#fff;margin-left:2px;}
 .video-card:hover .play-btn{opacity:1;}
-.yt-tag{position:absolute;bottom:6px;right:6px;background:rgba(0,0,0,.6);border-radius:3px;padding:2px 5px;font-size:9px;font-weight:700;color:#ff4444;}
-.dur-tag{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.65);border-radius:3px;padding:2px 6px;font-size:10px;font-weight:700;color:#fff;}
+.yt-tag{position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.7);border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700;color:#fff;}
+.dur-tag{position:absolute;bottom:5px;left:5px;background:rgba(0,0,0,.7);border-radius:3px;padding:1px 6px;font-size:10px;font-weight:700;color:#fff;}
+/* 지식채널e */
 .jisike-preview{display:none;margin-top:9px;border-radius:9px;overflow:hidden;border:1px solid var(--border);}
 .jisike-preview.show{display:block;}
-.jisike-mock{background:linear-gradient(135deg,#1a3a6b,#2e6db4);color:#fff;font-size:18px;font-weight:900;text-align:center;padding:28px;letter-spacing:1px;}
-.jisike-thumb-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
-.jisike-thumb-inner .ji-logo{font-size:18px;font-weight:900;color:#fff;letter-spacing:1px;}
-.jisike-thumb-inner .ji-sub{font-size:11px;color:rgba(255,255,255,.7);}
-.jisike-badge{position:absolute;bottom:6px;right:6px;background:rgba(26,58,107,.85);border-radius:3px;padding:2px 6px;font-size:9px;font-weight:700;color:#7eb8ff;}
-.card-del{position:absolute;top:7px;left:7px;width:26px;height:26px;background:rgba(0,0,0,.55);border:none;border-radius:50%;color:#fff;font-size:16px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .18s;z-index:10;}
+.jisike-mock{background:#222;color:#fff;font-size:14px;font-weight:700;text-align:center;padding:18px;letter-spacing:.5px;}
+.jisike-thumb-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;}
+.jisike-thumb-inner .ji-logo{font-size:15px;font-weight:900;color:#fff;letter-spacing:.5px;}
+.jisike-thumb-inner .ji-sub{font-size:10px;color:rgba(255,255,255,.6);}
+.jisike-badge{position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.7);border-radius:3px;padding:1px 5px;font-size:9px;font-weight:700;color:#fff;}
+/* 삭제 버튼 */
+.card-del{position:absolute;top:6px;left:6px;width:24px;height:24px;background:rgba(0,0,0,.6);border:none;border-radius:50%;color:#fff;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;z-index:10;}
 .video-card:hover .card-del{opacity:1;}
-.card-del:hover{background:rgba(210,30,45,.85);}
+.card-del:hover{background:#111;}
 .card-inner{display:block;text-decoration:none;color:inherit;}
-.card-info{padding:11px 12px;}
-.card-title{font-size:12.5px;font-weight:500;line-height:1.5;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.card-sub{margin-top:5px;font-size:10.5px;color:var(--text-muted);}
+.card-info{padding:9px 11px;}
+.card-title{font-size:12px;font-weight:500;line-height:1.5;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.card-sub{margin-top:4px;font-size:10.5px;color:var(--text-muted);}
 
 /* ── 빈 상태 */
-.no-video{padding:14px 0 4px 8px;font-size:12.5px;color:var(--text-muted);}
+.no-video{padding:12px 0 4px;font-size:12px;color:var(--text-muted);}
 .empty-grade{text-align:center;padding:60px 20px;color:var(--text-muted);}
-.empty-grade .ei{font-size:40px;margin-bottom:10px;}
+.empty-grade .ei{font-size:36px;margin-bottom:10px;}
 
 /* ── FAB */
 .fab{position:fixed;bottom:24px;right:24px;z-index:200;}
-.fab-btn{background:var(--accent);color:#fff;border:none;border-radius:50px;padding:12px 20px;font-size:13.5px;font-weight:700;cursor:pointer;box-shadow:0 4px 18px rgba(66,99,235,.38);transition:transform .18s,box-shadow .18s;font-family:inherit;display:flex;align-items:center;gap:6px;}
-.fab-btn:hover{transform:translateY(-2px);box-shadow:0 7px 26px rgba(66,99,235,.46);}
+.fab-btn{background:var(--text);color:#fff;border:none;border-radius:8px;padding:12px 20px;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.2);transition:opacity .15s;font-family:inherit;display:flex;align-items:center;gap:6px;}
+.fab-btn:hover{opacity:.85;}
 
 /* ── 모달 공통 */
-.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:400;backdrop-filter:blur(3px);align-items:flex-end;justify-content:center;}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:400;backdrop-filter:blur(2px);align-items:flex-end;justify-content:center;}
 .backdrop.open{display:flex;}
-.sheet{background:#fff;border-radius:18px 18px 0 0;padding:18px 20px 34px;width:100%;max-width:540px;animation:up .24s ease;max-height:92vh;overflow-y:auto;}
-@keyframes up{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
-.drag-handle{width:34px;height:4px;background:#dde1ef;border-radius:2px;margin:0 auto 16px;}
+.sheet{background:#fff;border-radius:16px 16px 0 0;padding:16px 20px 32px;width:100%;max-width:540px;animation:up .22s ease;max-height:92vh;overflow-y:auto;}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+.drag-handle{width:32px;height:3px;background:#ddd;border-radius:2px;margin:0 auto 16px;}
 .sheet h2{font-size:15px;font-weight:700;margin-bottom:14px;}
-.field-label{display:block;font-size:10.5px;font-weight:700;color:var(--text-muted);letter-spacing:.4px;text-transform:uppercase;margin-top:12px;margin-bottom:4px;}
-.field{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);padding:10px 12px;font-size:13.5px;font-family:inherit;outline:none;transition:border-color .15s;}
-.field:focus{border-color:var(--accent);}
-.field::placeholder{color:#c4c8d8;}
-.thumb-preview{display:none;margin-top:9px;border-radius:9px;overflow:hidden;border:1px solid var(--border);}
+.field-label{display:block;font-size:10.5px;font-weight:700;color:var(--text-muted);letter-spacing:.3px;text-transform:uppercase;margin-top:12px;margin-bottom:4px;}
+.field{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-size:13.5px;font-family:inherit;outline:none;transition:border-color .15s;}
+.field:focus{border-color:var(--text);}
+.field::placeholder{color:#bbb;}
+.thumb-preview{display:none;margin-top:9px;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
 .thumb-preview.show{display:block;}
 .thumb-preview img{width:100%;display:block;}
-.thumb-preview-label{padding:7px 11px;font-size:11px;color:var(--text-muted);background:var(--bg);}
+.thumb-preview-label{padding:6px 10px;font-size:11px;color:var(--text-muted);background:var(--bg2);}
 .btn-row{display:flex;gap:8px;margin-top:16px;}
-.btn-ok{flex:1;background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;}
-.btn-ok:hover{opacity:.85;}
-.btn-ok:disabled{opacity:.5;cursor:not-allowed;}
-.btn-cancel{background:var(--bg);border:1px solid var(--border);color:var(--text-muted);border-radius:9px;padding:11px 16px;font-size:13.5px;cursor:pointer;font-family:inherit;}
+.btn-ok{flex:1;background:var(--text);color:#fff;border:none;border-radius:8px;padding:11px;font-size:13.5px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.btn-ok:hover{opacity:.8;}
+.btn-ok:disabled{opacity:.4;cursor:not-allowed;}
+.btn-cancel{background:var(--bg2);border:1px solid var(--border);color:var(--text-muted);border-radius:8px;padding:11px 16px;font-size:13.5px;cursor:pointer;font-family:inherit;}
+.btn-cancel:hover{border-color:var(--text);color:var(--text);}
 
 /* ── 목차 편집 */
 .toc-grade-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
 .toc-gtab{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:transparent;font-size:12px;cursor:pointer;font-family:inherit;color:var(--text-muted);transition:all .15s;}
-.toc-gtab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-.toc-major-block{margin-bottom:14px;background:var(--bg);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.toc-gtab.active{background:var(--text);color:#fff;border-color:var(--text);}
+.toc-major-block{margin-bottom:12px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
 .toc-major-row{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border);background:#fff;}
 .toc-major-num{font-size:11px;font-weight:700;color:var(--text-muted);min-width:28px;}
 .toc-major-input{flex:1;background:transparent;border:none;font-size:13.5px;font-family:inherit;color:var(--text);outline:none;font-weight:600;}
-.toc-major-input::placeholder{color:#c4c8d8;}
+.toc-major-input::placeholder{color:#ccc;}
 .toc-del-btn{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;padding:0 2px;line-height:1;}
-.toc-del-btn:hover{color:var(--accent2);}
+.toc-del-btn:hover{color:#111;}
 .toc-minor-list{padding:8px 10px;display:flex;flex-direction:column;gap:6px;}
-.toc-minor-row{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 10px;}
-.toc-minor-num{font-size:10.5px;font-weight:700;color:var(--text-muted);min-width:32px;}
+.toc-minor-row{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--border);border-radius:7px;padding:8px 10px;}
+.toc-minor-num{font-size:10.5px;font-weight:700;color:var(--text-muted);min-width:30px;}
 .toc-minor-input{flex:1;background:transparent;border:none;font-size:12.5px;font-family:inherit;color:var(--text);outline:none;}
-.toc-minor-input::placeholder{color:#c4c8d8;}
-.toc-add-minor{width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:7px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all .15s;}
-.toc-add-minor:hover{border-color:var(--accent);color:var(--accent);}
-.toc-add-major{width:100%;background:none;border:1px dashed var(--border);border-radius:10px;padding:10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all .15s;margin-bottom:14px;}
-.toc-add-major:hover{border-color:var(--accent);color:var(--accent);}
+.toc-minor-input::placeholder{color:#ccc;}
+.toc-add-minor{width:100%;background:none;border:1px dashed var(--border);border-radius:7px;padding:7px;font-size:12px;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all .15s;}
+.toc-add-minor:hover{border-color:var(--text);color:var(--text);}
+.toc-add-major{width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all .15s;margin-bottom:12px;}
+.toc-add-major:hover{border-color:var(--text);color:var(--text);}
 
 /* ── 학년 편집 */
 .grade-list{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;}
-.grade-item{display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:10px 12px;}
+.grade-item{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;}
 .grade-item input{flex:1;background:transparent;border:none;font-size:13.5px;font-family:inherit;color:var(--text);outline:none;}
-.grade-item input::placeholder{color:#c4c8d8;}
-.grade-add-btn{width:100%;background:none;border:1px dashed var(--border);border-radius:9px;padding:10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all .15s;}
-.grade-add-btn:hover{border-color:var(--accent);color:var(--accent);}
+.grade-item input::placeholder{color:#ccc;}
+.grade-add-btn{width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:10px;font-size:13px;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all .15s;}
+.grade-add-btn:hover{border-color:var(--text);color:var(--text);}
 
+/* ── 반응형 */
 @media(max-width:600px){
-  main{padding:16px;} header{padding:12px 16px;} .grade-tabs{padding:12px 16px 0;}
-  .video-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+  header{padding:11px 16px;}
+  header h1{font-size:14px;}
+  .hdr-btn .btn-text{display:none;}
+  .grade-tabs{padding:0 16px;}
+  main{padding:14px 16px;}
+  .video-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+  .fab{bottom:20px;right:16px;}
+  .fab-btn{padding:11px 16px;font-size:12.5px;}
 }
 </style>
 </head>
@@ -153,8 +167,8 @@ main{padding:24px;max-width:1280px;margin:0 auto;}
   <div class="logo">🎬</div>
   <h1>도덕 수업 영상 모음</h1>
   <div class="header-actions">
-    <button class="hdr-btn" onclick="openGradeEdit()">🏫 학년 편집</button>
-    <button class="hdr-btn" onclick="openToc()">📋 목차 편집</button>
+    <button class="hdr-btn" onclick="openGradeEdit()">🏫 <span class="btn-text">학년 편집</span></button>
+    <button class="hdr-btn" onclick="openToc()">📋 <span class="btn-text">목차 편집</span></button>
   </div>
 </header>
 
@@ -317,7 +331,7 @@ function renderMain() {
         return `
           <div class="minor-section">
             <div class="minor-header">
-              <span class="minor-label">${sName.split('.')[0].trim()}</span>
+              <span class="minor-num">${sName.split('.')[0].trim()}.</span>
               <span class="minor-title">${sName.replace(/^\d+\.\s*/,'')}</span>
               <span class="minor-count">영상 ${vids.length}개</span>
             </div>
@@ -358,7 +372,7 @@ function cardHtml(v, subName) {
          <span class="ji-sub">클릭하면 EBS로 이동합니다</span>
        </div>
        <span class="jisike-badge">EBS</span>`;
-  const wrapStyle = isYt ? '' : ' style="background:linear-gradient(135deg,#1a3a6b,#2e6db4);"';
+  const wrapStyle = isYt ? '' : ' style="background:#222;"';
   return `
     <div class="video-card">
       <button class="card-del" onclick="deleteVideo('${v.id}')" title="삭제">×</button>
