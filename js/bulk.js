@@ -41,7 +41,7 @@ export function openBulk(where) {
     '<h2>여러 차시 한 번에</h2>' +
     '<p class="desc">' + esc(minorName(where.gi, where.mi, where.si)) + ' 단원에 차시를 한꺼번에 만듭니다. ' +
     '<b>##</b> 로 시작하는 줄이 새 차시의 시작이고, 쪽수는 제목 끝 괄호에 적습니다. <b>[질문] [예시] [목표]</b> 줄은 인트로로, 나머지는 판서로 들어갑니다.' +
-    (example ? ' 이 단원은 예시가 미리 들어 있어요.' : '') + '</p>' +
+    (example ? ' 이 단원은 교과서 기준 초안이 미리 들어 있어요.' : '') + '</p>' +
     '<textarea class="field" id="bkText" placeholder="## 01 차시 제목 (148~151쪽)&#10;[질문] 학생에게 던질 질문 (148쪽)&#10;[예시] 예) …&#10;[목표] 학습목표 한 줄&#10;# 학습 1. 큰 제목 (149쪽)&#10;(1) *핵심어*가 들어간 내용&#10;&#10;## 02 다음 차시 제목">' + esc(example) + '</textarea>' +
     '<div class="bulk-res" id="bkRes"></div>' +
     '<div class="sheet-btns"><span class="sp"></span><button class="btn" id="bkCancel">취소</button><button class="btn main" id="bkOk">차시 만들기</button></div>',

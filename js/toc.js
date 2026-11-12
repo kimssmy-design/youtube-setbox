@@ -39,6 +39,15 @@ function tools(prefix, attrs) {
     '<button class="ic" data-a="' + prefix + '-del"' + attrs + ' aria-label="삭제">×</button>';
 }
 
+// 단원 개수가 교과서 차례와 같거나(이름만 바꿈) 아직 비어 있는 학년에만 버튼을 보여 줌
+function bookFits(g) {
+  const book = store.bookToc();
+  if (!g.majors.length) return true;
+  if (g.majors.length !== book.length) return false;
+  const same = g.majors.every(function (m, i) { return m.name.trim() === book[i].major && m.minors.length === book[i].minors.length && m.minors.every(function (n, k) { return n.name.trim() === book[i].minors[k]; }); });
+  return !same && g.majors.every(function (m, i) { return m.minors.length === book[i].minors.length; });
+}
+
 function paint() {
   const g = draft[cur];
   let h = '<h2>목차 편집</h2>' +
@@ -52,6 +61,7 @@ function paint() {
     h += '<div class="t-row gname"><input data-t="g" value="' + esc(g.name) + '" placeholder="학년 이름 (예: 중학교 2학년)">' +
       '<button class="ic" data-a="g-up" aria-label="앞으로">←</button><button class="ic" data-a="g-down" aria-label="뒤로">→</button>' +
       '<button class="ic" data-a="g-del" aria-label="학년 삭제">×</button></div>' +
+      (bookFits(g) ? '<button class="dash" data-a="book" style="margin-top:8px">비상교육 도덕① 교과서 차례로 단원 이름 바꾸기</button>' : '') +
       '<label class="field-label">단원</label>';
     g.majors.forEach(function (m, mi) {
       const a = ' data-mi="' + mi + '"';
@@ -180,6 +190,12 @@ export function openTocEditor() {
     if (a === 'cancel') { closeModal(); return; }
     if (a === 'save') { save(); return; }
     if (a === 'g-sel') cur = +t.getAttribute('data-gi');
+    else if (a === 'book') {
+      const book = store.bookToc();
+      if (!g.majors.length) g.majors = book.map(function (m) { return { name: '', o: null, minors: m.minors.map(function () { return { name: '', o: null }; }) }; });
+      g.majors.forEach(function (m, i) { m.name = book[i].major; m.minors.forEach(function (n, k) { n.name = book[i].minors[k]; }); });
+      toast('교과서 차례로 이름을 바꿨어요. "저장"을 눌러야 반영됩니다');
+    }
     else if (a === 'g-add') { draft.push({ name: '', o: null, majors: [] }); cur = draft.length - 1; focusSel = 'input[data-t="g"]'; }
     else if (a === 'g-up') { if (cur > 0) { swap(draft, cur, -1); cur--; } }
     else if (a === 'g-down') { if (cur < draft.length - 1) { swap(draft, cur, 1); cur++; } }

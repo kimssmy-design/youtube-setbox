@@ -12,12 +12,13 @@ const SETTINGS_ID = 'lesson_settings';
 
 // 기존 사이트에 설정이 아직 없을 때 쓰는 기본 목차
 const DEFAULT_GRADES = ['중학교 2학년', '중학교 3학년'];
+// 중2 = 비상교육 도덕①(2022 개정) 교과서 차례 그대로
 const DEFAULT_TOC = [
   [
-    { major: 'Ⅰ. 자신과의 관계', minors: ['1. 자아와 도덕적인 삶', '2. 도덕적인 사람의 모습', '3. 행복과 도덕'] },
-    { major: 'Ⅱ. 타인과의 관계', minors: ['1. 바람직한 가정의 모습', '2. 우정의 소중함', '3. 가상공간과 타인 존중'] },
-    { major: 'Ⅲ. 사회·공동체와의 관계', minors: ['1. 인권의 보편성', '2. 다양한 문화와 종교의 공존', '3. 통일의 의미와 가치'] },
-    { major: 'Ⅳ. 자연과의 관계', minors: ['1. 생명을 존중하는 삶'] }
+    { major: 'Ⅰ. 자신과의 관계', minors: ['1. 나는 어떤 사람이고, 어떻게 살아야 할까?', '2. 어떤 사람이 도덕적인 사람일까?', '3. 행복이란 무엇일까?'] },
+    { major: 'Ⅱ. 타인과의 관계', minors: ['1. 가정의 모습은 어떠해야 할까?', '2. 우정이 소중한 이유는 무엇일까?', '3. 가상공간에서 타인을 어떻게 대해야 할까?'] },
+    { major: 'Ⅲ. 사회·공동체와의 관계', minors: ['1. 인권은 보편적 가치일까?', '2. 다양한 문화·종교는 어떻게 공존할 수 있을까?', '3. 통일은 어떤 의미와 가치가 있을까?'] },
+    { major: 'Ⅳ. 자연과의 관계', minors: ['1. 도덕적 고려의 대상은 어디까지일까?'] }
   ],
   [
     { major: 'Ⅰ. 타인과의 관계', minors: ['1. 정보 통신 윤리', '2. 평화적 갈등 해결', '3. 폭력의 문제'] },
@@ -38,6 +39,11 @@ function pack(toc) {
   return toc.map(function (majors) {
     return { majors: majors.map(function (m) { return { major: m.major, minors: m.minors || [] }; }) };
   });
+}
+
+// 목차 편집의 "교과서 이름 넣기"에서 쓰는 비상교육 도덕① 차례
+export function bookToc() {
+  return DEFAULT_TOC[0].map(function (m) { return { major: m.major, minors: m.minors.slice() }; });
 }
 
 export async function loadConfig() {
