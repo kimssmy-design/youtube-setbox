@@ -64,7 +64,7 @@ function topicText(l) { const t = topicOf(l); return (t.memo ? 1 : 0) + (t.goals
 function maxIdx(l, k) {
   if (k === 'topic') return topicText(l) + Math.max(0, topicOf(l).photos.length - 1);
   if (k === 'board') return board.stepCount(l, state.blank);
-  if (k === 'review') return board.blankCount(l);
+  if (k === 'review') return (state.reviewMax && state.reviewMax[l.id]) || board.blankCount(l); // 쪽 넘김이 있으면 그만큼 더
   return 0;
 }
 function getIdx(p, k) { return k === 'topic' || k === 'board' || k === 'review' ? p[k] : 0; }
@@ -168,6 +168,21 @@ function topicHtml(l, p) {
     '<div class="t-side">' + side + '</div></div>';
 }
 
+// 인트로가 한 화면에 다 들어오도록 글씨와 사진을 함께 줄임
+//   (예시·학습목표는 나타나기 전에도 자리를 차지하므로 누를 때 화면이 움직이지 않음)
+function fitTopic(stage) {
+  const t = stage.querySelector('.topic');
+  if (!t) return;
+  let s = 1;
+  t.style.setProperty('--ts', '1');
+  while (stage.scrollHeight > stage.clientHeight + 1 && s > 0.45) {
+    s = +(s - 0.05).toFixed(2);
+    t.style.setProperty('--ts', String(s));
+  }
+  const img = t.querySelector('.t-photo img');
+  if (img && !img.complete) img.addEventListener('load', function () { fitTopic(stage); }, { once: true });
+}
+
 // 영상 단계에 실제로 보여 줄 영상 (마무리로 고른 게 없으면 이 단원 영상 전부)
 function shownVideos(l) {
   const vids = endVideos(l);
@@ -215,10 +230,13 @@ export function renderRun(l) {
   } else if (p.sec === 'topic') {
     stage.innerHTML = topicHtml(l, p);
     board.upgradePhotos(stage);
+    fitTopic(stage);
   } else if (p.sec === 'board') {
     state.boardPage = board.renderBoard(stage, l, p.board, !!state.blank);
   } else if (p.sec === 'review') {
-    board.renderReview(stage, l, p.review);
+    state.reviewInfo = board.renderReview(stage, l, p.review);
+    if (!state.reviewMax) state.reviewMax = {};
+    state.reviewMax[l.id] = state.reviewInfo.total;
   } else {
     stage.innerHTML = videoHtml(l);
   }
@@ -242,7 +260,10 @@ export function renderRun(l) {
       where = name + ' ' + p.board + ' / ' + m;
       if (state.boardPage && state.boardPage.pages > 1) where += ' · ' + state.boardPage.page + '쪽';
     }
-    else if (p.sec === 'review') where = name + ' ' + p.review + ' / ' + m;
+    else if (p.sec === 'review') {
+      const ri = state.reviewInfo;
+      where = name + ' ' + ri.done + ' / ' + ri.blanks + (ri.pages > 1 ? ' · ' + ri.page + '쪽' : '');
+    }
     else if (p.sec === 'topic' && m > 0) where = name + ' ' + (p.topic + 1) + ' / ' + (m + 1);
     else if (p.sec === 'video') where = name + ' ' + shownVideos(l).length + '개';
     else where = name;

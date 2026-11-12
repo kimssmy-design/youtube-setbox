@@ -183,12 +183,13 @@ export function convertPos(lesson, n, fromBlank, toBlank) {
 }
 
 // *글자* → 핵심어. hid(j)가 참이면 빈칸으로 가림
-export function rich(t, hid) {
+//   bk: 빈칸을 쓰는 화면(빈칸 켬·복습). 채워지기 전후의 폭이 같아 글자가 움직이지 않음
+export function rich(t, hid, bk) {
   let j = 0;
   return esc(t).replace(/\*([^*]+)\*/g, function (_, w) {
     const h = hid ? hid(j) : false;
     j++;
-    return '<span class="bl' + (h ? ' hid' : '') + '">' + w + '</span>';
+    return '<span class="bl' + (bk ? ' bk' : '') + (h ? ' hid' : '') + '">' + w + '</span>';
   });
 }
 
@@ -219,6 +220,7 @@ export function upgradePhotos(el) {
 // ── 그리기
 // st(i) → { show, hid(j) }  : i번째 item을 보여 줄지, j번째 핵심어를 가릴지
 function itemInner(it, st) {
+  if (st.nomedia && it.k !== 'text') return '';
   if (it.k === 'photo') {
     if (it.cell) {
       return '<button class="mcard cellph" data-act="view-photo" data-i="' + it.i + '">' +
@@ -234,8 +236,8 @@ function itemInner(it, st) {
       '<span>기사 · ' + esc(it.l.title || it.l.url) + ' ↗</span></a>';
   }
   const pg = it.pg ? '<span class="pg">' + esc(it.pg) + '쪽</span>' : '';
-  if (it.sub === 'big') return (it.label ? '<i>' + esc(it.label) + '</i>' : '') + '<span>' + rich(it.t, st.hid) + '</span>' + pg;
-  return rich(it.t, st.hid) + pg;
+  if (it.sub === 'big') return (it.label ? '<i>' + esc(it.label) + '</i>' : '') + '<span>' + rich(it.t, st.hid, st.bk) + '</span>' + pg;
+  return rich(it.t, st.hid, st.bk) + pg;
 }
 function textCls(it) {
   if (it.sub === 'big') return 'big';
@@ -275,16 +277,19 @@ function isTopHead(model, r) {
 
 // 화면 높이에 맞춰 여러 쪽으로 나눔
 //   큰 제목과 '---' 에서는 반드시 넘기고, 이어지는 쪽에는 앞의 소제목을 흐리게 다시 보여 줌
-function paginate(el, model) {
+//   opt.keep(row): 그릴 줄 고르기, opt.cls: 판 모양, opt.prefix: 쪽마다 맨 위에 들어갈 것, opt.st: 재는 동안의 표시 상태
+function paginate(el, model, opt) {
+  opt = opt || {};
   const idx = [];   // 화면에 그리는 줄 번호들
-  model.rows.forEach(function (r, i) { if (r.type !== 'break') idx.push(i); });
-  const all = function () { return { show: true, hid: null }; };
-  el.innerHTML = '<div class="board measure">' + idx.map(function (r) { return rowHtml(model, r, all); }).join('') + '</div>';
+  model.rows.forEach(function (r, i) { if (r.type !== 'break' && (!opt.keep || opt.keep(r))) idx.push(i); });
+  const all = function () { return opt.st || { show: true, hid: null }; };
+  el.innerHTML = '<div class="board measure ' + (opt.cls || '') + '">' + (opt.prefix || '') + idx.map(function (r) { return rowHtml(model, r, all); }).join('') + '</div>';
   const box = el.firstChild;
   const cs = getComputedStyle(el);
-  const H = el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 12;
   const ws = box.querySelectorAll('.lw');
   const top = function (node) { return node.getBoundingClientRect().top; };
+  const H = el.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 12 -
+    (ws.length ? top(ws[0]) - box.getBoundingClientRect().top : 0);
   const end = box.getBoundingClientRect().bottom;
   const h = {};
   idx.forEach(function (r, k) { h[r] = (k + 1 < idx.length ? top(ws[k + 1]) : end) - top(ws[k]); });
@@ -328,11 +333,11 @@ export function renderBoard(el, lesson, n, blankOn) {
   const pg = pages[k];
   const stOf = function (i) {
     const ph = phase[i] || 0;
-    return { show: ph > 0, isNew: i === lastIt, hid: function () { return ph === 1; } };
+    return { show: ph > 0, isNew: i === lastIt, bk: blankOn, hid: function () { return ph === 1; } };
   };
   let html = '<div class="board">';
   if (n === 0) html += '<div class="hint first">화면을 누르면 한 줄씩 나타납니다.</div>';
-  if (pg.head !== -1) html += rowHtml(model, pg.head, function () { return { show: true, hid: null }; }, ' rep');
+  if (pg.head !== -1) html += rowHtml(model, pg.head, function () { return { show: true, hid: null, bk: blankOn }; }, ' rep');
   pg.rows.forEach(function (r) { html += rowHtml(model, r, stOf); });
   el.innerHTML = html + '</div>';
   upgradePhotos(el);
@@ -340,25 +345,45 @@ export function renderBoard(el, lesson, n, blankOn) {
   return { page: k + 1, pages: pages.length };
 }
 
-// 빈칸 복습: 판서 전체를 빈칸 상태로 띄우고 누를 때마다 하나씩 채움
+// 빈칸 복습: 판서를 빈칸 상태로 다시 띄우고 누를 때마다 하나씩 채움
+//   화면은 움직이지 않고(쪽 단위로만 넘어감) 빈칸 자리에 빨간 글씨만 나타남
+//   n = 누른 횟수(빈칸 채우기 + 쪽 넘김). 반환값: { total, done, blanks, page, pages }
 export function renderReview(el, lesson, n) {
   const model = parse(lesson);
-  const stOf = function (i) {
-    const it = model.items[i];
-    return { show: true, hid: function (j) { return it.b0 + j >= n; } };
+  const items = model.items;
+  const prefix = '<div class="rv-title">빈칸 복습 <small>화면을 누르면 하나씩 채워집니다</small></div>';
+  const keep = function (row) {
+    return row.type === 'line' || (row.type === 'cmp' && row.cells.some(function (i) { return items[i].k === 'text'; }));
   };
-  let html = '<div class="board review"><div class="rv-title">빈칸 복습 <small>화면을 누르면 하나씩 채워집니다</small></div>';
-  model.rows.forEach(function (row, r) {
-    if (row.type === 'line' || row.type === 'cmp') {
-      if (row.type === 'cmp' && !row.cells.some(function (i) { return model.items[i].k === 'text'; })) return;
-      html += rowHtml(model, r, stOf);
-    }
+  const pages = paginate(el, model, { keep: keep, cls: 'review', prefix: prefix, st: { show: true, hid: null, bk: true, nomedia: true } });
+  // 누르는 순서: 쪽마다 빈칸을 차례로, 다음 쪽으로 갈 때 한 번
+  const seq = [];
+  pages.forEach(function (pg, k) {
+    let cnt = 0;
+    pg.rows.forEach(function (r) { model.rows[r].cells.forEach(function (i) { if (items[i].k === 'text') cnt += items[i].blanks; }); });
+    if (!cnt) return;
+    if (seq.length) seq.push({ page: k, turn: true });
+    for (let j = 0; j < cnt; j++) seq.push({ page: k });
   });
+  n = Math.max(0, Math.min(n, seq.length));
+  const k = seq.length ? seq[Math.max(0, n - 1)].page : 0;
+  let done = 0;
+  for (let i = 0; i < n; i++) if (!seq[i].turn) done++;
+  const justTurned = n > 0 && seq[n - 1].turn;
+  const stOf = function (i) {
+    const it = items[i];
+    return { show: true, bk: true, nomedia: true, hid: function (j) { return it.b0 + j >= done; }, isLast: function (j) { return !justTurned && it.b0 + j === done - 1; } };
+  };
+  const pg = pages[k];
+  let html = '<div class="board review">' + prefix;
+  if (pg.head !== -1) html += rowHtml(model, pg.head, function () { return { show: true, hid: null, bk: true, nomedia: true }; }, ' rep');
+  pg.rows.forEach(function (r) { html += rowHtml(model, r, stOf); });
   el.innerHTML = html + '</div>';
-  el.querySelectorAll('.cmp .ln.m').forEach(function (m) { m.innerHTML = ''; });
-  const hidden = el.querySelectorAll('.bl.hid');
-  const shown = el.querySelectorAll('.bl:not(.hid)');
-  const target = hidden[0] || shown[shown.length - 1];
-  if (shown.length) shown[shown.length - 1].classList.add('just');
-  if (target && target.scrollIntoView) target.scrollIntoView({ block: 'center' });
+  el.scrollTop = 0;
+  // 방금 채운 빈칸만 형광펜 (자리는 그대로)
+  if (done > 0 && !justTurned) {
+    const shown = el.querySelectorAll('.lw:not(:has(.rep)) .bl:not(.hid)');
+    if (shown.length) shown[shown.length - 1].classList.add('just');
+  }
+  return { total: seq.length, done: done, blanks: model.blanks, page: k + 1, pages: pages.length };
 }

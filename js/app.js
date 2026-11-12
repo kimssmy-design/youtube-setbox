@@ -34,6 +34,7 @@ function recall() {
 function render() {
   if (state.sel.gi >= state.grades.length) state.sel.gi = 0;
   document.documentElement.style.setProperty('--fs', String(state.fontScale));
+  document.documentElement.style.setProperty('--fs0', String(state.fontScale));
   document.body.setAttribute('data-view', state.view);
   if (state.view === 'home') renderHome($('home'));
   else if (state.view === 'run') {

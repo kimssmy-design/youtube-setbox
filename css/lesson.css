@@ -116,7 +116,8 @@ body.locked .gate{display:flex;}
 /* 인트로 */
 .topic{display:flex;gap:clamp(20px,3.5vw,48px);align-items:center;min-height:100%;}
 .t-photo{flex:1.25;min-width:0;border:none;background:#f1f1f1;border-radius:14px;overflow:hidden;padding:0;position:relative;display:flex;align-items:center;justify-content:center;}
-.t-photo img{display:block;width:100%;max-height:calc(100vh - 240px);object-fit:contain;}
+.topic{--fs:calc(var(--fs0,1) * var(--ts,1));}
+.t-photo img{display:block;width:100%;max-height:calc((100vh - 240px) * var(--ts,1));object-fit:contain;}
 .t-photo span{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font-size:calc(clamp(13px,1.3vw,17px) * var(--fs));padding:26px 16px 12px;text-align:left;}
 .t-side{flex:1;min-width:0;}
 .topic.nophoto{justify-content:center;}
@@ -156,7 +157,9 @@ body.locked .gate{display:flex;}
 .pg{display:inline-block;background:var(--mark);color:var(--text);border-radius:6px;padding:.08em .55em;font-size:.6em;font-weight:900;margin-left:.6em;white-space:nowrap;vertical-align:middle;letter-spacing:0;}
 .ln.big .pg{margin-left:0;}
 .bl{color:var(--red);font-weight:700;border-bottom:3px solid transparent;transition:color .2s;}
-.bl.hid{color:transparent;border-bottom-color:var(--text);padding:0 .5em;margin:0 .15em;}
+.bl.hid{color:transparent;border-bottom-color:var(--text);}
+/* 빈칸을 쓰는 화면: 채워지기 전후의 폭을 같게 해서 글자가 움직이지 않게 */
+.bl.bk{padding:0 .35em;margin:0 .12em;}
 .bl.just{background:linear-gradient(transparent 62%,var(--mark) 62%);}
 .mrow{display:flex;flex-wrap:wrap;gap:10px;margin-left:calc(var(--u) * var(--d));padding:calc(clamp(6px,.8vw,10px) * var(--bfs)) 0 2px;}
 .mrow .ln.m{padding:0;display:block;}
