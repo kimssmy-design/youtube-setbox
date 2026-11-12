@@ -26,6 +26,7 @@ function recall() {
     if (g >= 0) state.sel.gi = g;
     const f = parseFloat(localStorage.getItem('lessonFont'));
     if (f >= 0.7 && f <= 1.8) state.fontScale = f;
+    state.blank = localStorage.getItem('lessonBlank') === '1';
   } catch (e) { /* 무시 */ }
 }
 
@@ -85,10 +86,12 @@ function openHelp() {
   const sheet = openModal(
     '<h2>사용법</h2>' +
     '<ul class="help-list">' +
-    '<li><b>수업하기</b>: 차시를 누르면 ① 화두 → ② 판서 → ③ 교과서 → ④ 영상 순서로 진행됩니다. 화면을 누르거나 "다음 ▶"(→ 키)를 누르면 다음으로, ← 키는 되돌리기.</li>' +
+    '<li><b>수업하기</b>: 차시를 누르면 표지 → ① 인트로 → ② 판서 → ③ 복습 → ④ 영상 순서로 진행됩니다. 화면을 누르거나 "다음 ▶"(→ 키)를 누르면 다음으로, ← 키는 되돌리기.</li>' +
+    '<li><b>빈칸</b>: 수업 중 "빈칸" 버튼(B 키)을 켜면 빨간 핵심어가 빈칸으로 먼저 나오고, 한 번 더 누르면 채워집니다. ③ 복습은 판서 전체를 빈칸으로 다시 띄워 하나씩 맞혀 봅니다.</li>' +
     '<li><b>순서 바꾸기</b>: 위쪽 단계 이름을 누르면 그 단계로 바로 갑니다. 영상을 먼저 보고 판서로 돌아와도 판서는 보던 데서 이어집니다. 숫자 키 1~4도 됩니다.</li>' +
-    '<li><b>준비하기</b>: 차시 옆 ✎ 또는 수업 중 "✎ 준비"에서 화두·판서·교과서 쪽수·마무리 영상을 채웁니다. 비워 둔 단계는 건너뜁니다.</li>' +
-    '<li><b>사진</b>: 준비 화면에서 붙여넣기(Ctrl+V)만 해도 들어갑니다. 판서 글 상자에 붙여넣으면 판서에, 그 밖에서는 화두에 들어갑니다.</li>' +
+    '<li><b>준비하기</b>: 차시 옆 ✎ 또는 수업 중 "✎ 준비"에서 인트로·판서·마무리 영상을 채웁니다. 비워 둔 단계는 건너뜁니다.</li>' +
+    '<li><b>판서 쓰는 법</b>: # 학습 1. 제목 (109쪽) = 큰 제목(새 화면), 1. / (1) / ① = 번호 단계, *글자* = 핵심어, ※ = 빨간 보충, 왼쪽 | 오른쪽 = 두 칸 비교, --- = 화면 넘김.</li>' +
+    '<li><b>사진</b>: 준비 화면에서 붙여넣기(Ctrl+V)만 해도 들어갑니다. 판서 글 상자에 붙여넣으면 판서에, 그 밖에서는 인트로에 들어갑니다.</li>' +
     '<li><b>단원 통째로</b>: "여러 차시 한 번에"에 ## 01 제목 (148~151쪽) 형식으로 붙여넣습니다.</li>' +
     '<li><b>잠그기</b>: 교실 컴퓨터에서 쓴 뒤 누르면 다시 암호를 묻습니다.</li>' +
     '</ul>' +
@@ -132,6 +135,7 @@ function bind() {
     if (nid) startRun(nid, true); else step(1);
   };
   $('prevBtn').onclick = function () { step(-1); };
+  $('blankBtn').onclick = function () { const l = run.runLesson(); run.toggleBlank(l); if (l) run.renderRun(l); };
 
   stage.addEventListener('click', function (e) {
     const l = run.runLesson();
@@ -168,6 +172,8 @@ function bind() {
       e.preventDefault(); step(-1);
     } else if (/^[1-4]$/.test(e.key)) {
       if (run.jump(l, run.SECS[+e.key - 1].k)) { run.renderRun(l); stage.scrollTop = 0; }
+    } else if (e.key === 'b' || e.key === 'B' || e.key === 'ㅠ') {
+      run.toggleBlank(l); run.renderRun(l);
     } else if (e.key === 'Escape') {
       goHome();
     }

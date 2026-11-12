@@ -1,4 +1,4 @@
-// 준비 화면: 한 차시의 ① 화두 ② 판서 ③ 교과서 ④ 마무리 영상을 위에서 아래로 채웁니다.
+// 준비 화면: 한 차시의 ① 인트로 ② 판서 ③ 마무리 영상을 위에서 아래로 채웁니다.
 // 올린 사진은 바로 저장되지만, 차시에 붙는 것은 "저장"을 눌렀을 때입니다.
 import { state, lessonsOf, videosOf, minorName } from './state.js';
 import * as store from './store.js';
@@ -41,31 +41,33 @@ export function openPrep(lesson, where) {
     '<div class="blk"><div class="blk-b"><div class="row3">' +
     '<div><label class="field-label">번호</label><input class="field" id="pNo" value="' + esc(isNew ? pad(lessonsOf(at.gi, at.mi, at.si).length + 1) : (L.no || '')) + '"></div>' +
     '<div><label class="field-label">차시 제목</label><input class="field" id="pTitle" value="' + esc(L.title || '') + '" placeholder="예: 북한을 이해하려면"></div>' +
+    '<div><label class="field-label">교과서 쪽</label><input class="field" id="pPage" value="' + esc(L.page || '') + '" placeholder="148~151"></div>' +
     '</div></div></div>' +
 
-    '<div class="blk" data-blk="topic"><div class="blk-h"><em>1</em>화두<small>근황토크 · 시사 · 생각 열기</small></div><div class="blk-b">' +
-    '<label class="field-label">학생에게 던질 질문</label><input class="field" id="pQ" value="' + esc(t.q) + '" placeholder="예: \'북한\' 하면 어떤 모습이 떠오르나요?">' +
-    '<label class="field-label">덧붙일 말 (선택)</label><textarea class="field short" id="pMemo" placeholder="예: 연평 해전과 평창 올림픽, 같은 북한인데 왜 이렇게 다를까?">' + esc(t.memo) + '</textarea>' +
+    '<div class="blk" data-blk="topic"><div class="blk-h"><em>1</em>인트로<small>근황토크 · 시사 · 생각 열기 · 학습목표</small></div><div class="blk-b">' +
+    '<div class="row2"><div><label class="field-label">학생에게 던질 질문</label><input class="field" id="pQ" value="' + esc(t.q) + '" placeholder="예: \'북한\' 하면 떠오르는 단어 5가지?"></div>' +
+    '<div><label class="field-label">쪽 (선택)</label><input class="field" id="pTPage" value="' + esc(t.page) + '" placeholder="148"></div></div>' +
+    '<label class="field-label">예시·덧붙일 말 — 빨간 글씨, 한 번 누르면 나타남 (선택)</label><textarea class="field short" id="pMemo" placeholder="예) 핵, 미사일 / 이산가족, 탈북민">' + esc(t.memo) + '</textarea>' +
+    '<label class="field-label">학습목표 — 한 줄에 하나, 그다음 누를 때 나타남 (선택)</label><textarea class="field short" id="pGoals" placeholder="북한을 바라보는 두 가지 시각을 설명할 수 있다.&#10;북한에 관한 균형 있는 관점을 지닌다.">' + esc(t.goals) + '</textarea>' +
     '<div id="pTopicMedia"></div>' +
     '<div class="ins-row"><button class="mini" data-p="t-photo">＋ 사진</button><button class="mini" data-p="t-link">＋ 기사</button><button class="mini" data-p="t-video">＋ 영상</button></div>' +
     '<div class="pick" id="pTopicPick"></div>' +
-    '<div class="rule">사진이 여러 장이면 "다음"을 누를 때마다 한 장씩 넘어갑니다. 복사한 사진은 이 화면에서 붙여넣기(Ctrl+V)만 해도 화두에 들어갑니다.</div>' +
+    '<div class="rule">사진이 여러 장이면 "다음"을 누를 때마다 한 장씩 넘어갑니다. 복사한 사진은 이 화면에서 붙여넣기(Ctrl+V)만 해도 인트로에 들어갑니다.</div>' +
     '</div></div>' +
 
     '<div class="blk" data-blk="board"><div class="blk-h"><em>2</em>판서<small>한 줄씩 나타남</small></div><div class="blk-b">' +
-    '<textarea class="field" id="pText" placeholder="(1) 소제목&#10;① *핵심어*가 들어간 내용&#10;- 작은 글씨 덧붙임">' + esc(L.text || '') + '</textarea>' +
-    '<div class="ins-row"><button class="mini" data-p="red">빨간 강조</button><button class="mini" data-p="b-photo">＋ 사진</button>' +
-    '<button class="mini" data-p="b-video">＋ 중간 영상</button><button class="mini" data-p="b-link">＋ 기사</button></div>' +
+    '<textarea class="field" id="pText" placeholder="# 학습 1. 큰 제목 (109쪽)&#10;(1) *핵심어*가 들어간 내용&#10;※ 빨간 보충&#10;왼쪽 개념 | 오른쪽 개념">' + esc(L.text || '') + '</textarea>' +
+    '<div class="ins-row"><button class="mini" data-p="red">핵심어(빨강·빈칸)</button><button class="mini" data-p="cmp">두 칸 비교</button><button class="mini" data-p="brk">화면 넘김</button>' +
+    '<button class="mini" data-p="b-photo">＋ 사진</button><button class="mini" data-p="b-video">＋ 중간 영상</button><button class="mini" data-p="b-link">＋ 기사</button></div>' +
     '<div class="pick" id="pBoardPick"></div>' +
-    '<div class="rule"><code>(1)</code> <code>1.</code> <code>#</code> 으로 시작하면 소제목, <code>-</code> 로 시작하면 작은 글씨, <code>*글자*</code> 는 빨간 강조입니다. 사진·영상·기사는 커서가 있는 줄 다음에 들어가 그 순서에 나타납니다. 글 상자에 사진을 붙여넣으면 판서에 들어갑니다.</div>' +
+    '<div class="rule"><code># 학습 1. 제목 (109쪽)</code> 큰 제목 — 새 화면에서 시작하고 끝의 (109쪽)은 쪽수 배지가 됩니다. ' +
+    '<code>1.</code> <code>(1)</code> <code>①</code> 번호 단계 — 아래에 더 깊은 번호가 딸려 있으면 소제목, 없으면 내용 줄. ' +
+    '<code>*글자*</code> 핵심어 — 수업 중 "빈칸"을 켜면 빈칸으로 먼저 나옵니다. <code>※</code> 빨간 보충, <code>-</code> 회색 작은 글씨. ' +
+    '<code>왼쪽 | 오른쪽</code> 두 칸 비교(첫 줄은 칸 제목). <code>---</code> 화면 넘김. 사진·영상·기사는 커서가 있는 줄 다음에 작은 카드로 들어갑니다.</div>' +
     '<div id="pBoardMedia"></div>' +
     '</div></div>' +
 
-    '<div class="blk"><div class="blk-h"><em>3</em>교과서<small>쪽수를 크게 띄움</small></div><div class="blk-b">' +
-    '<input class="field" id="pPage" value="' + esc(L.page || '') + '" placeholder="예: 148~151 (비우면 이 단계는 건너뜀)">' +
-    '</div></div>' +
-
-    '<div class="blk"><div class="blk-h"><em>4</em>마무리 영상<small>이 단원 영상에서 고르기</small></div><div class="blk-b">' +
+    '<div class="blk"><div class="blk-h"><em>3</em>마무리 영상<small>이 단원 영상에서 고르기</small></div><div class="blk-b">' +
     '<div id="pEnd"></div>' +
     '<div class="ins-row"><button class="mini" data-p="e-video">＋ 유튜브 주소로 추가</button></div>' +
     '<div class="pick" id="pEndPick"></div>' +
@@ -175,16 +177,26 @@ async function upload(files, target) {
     } catch (e) { console.error(e); toast('사진 올리기 실패: ' + e.message); break; }
   }
   if (target === 'board') { paintBoardMedia(); q('#pBoardPick').innerHTML = ''; } else paintTopic();
-  toast(target === 'board' ? '판서에 사진을 넣었어요' : '화두에 사진을 넣었어요');
+  toast(target === 'board' ? '판서에 사진을 넣었어요' : '인트로에 사진을 넣었어요');
 }
 
 // 판서 글에서 [사진] 줄 이름 바꾸기·지우기
+//   두 칸 비교 줄 안의 칸도 함께 처리
 function renameLines(kind, oldName, newName) {
   const ta = q('#pText');
+  const hit = function (cell) {
+    const m = /^\s*\[(사진|영상|기사)\]\s*(.+?)\s*$/.exec(cell);
+    return !!(m && m[1] === kind && m[2] === oldName);
+  };
   ta.value = ta.value.split('\n').map(function (line) {
-    const m = /^\s*\[(사진|영상|기사)\]\s*(.+)$/.exec(line);
-    if (!m || m[1] !== kind || m[2].trim() !== oldName) return line;
-    return newName === null ? null : '[' + kind + '] ' + newName;
+    if (line.indexOf('|') === -1) {
+      if (!hit(line)) return line;
+      return newName === null ? null : '[' + kind + '] ' + newName;
+    }
+    return line.split('|').map(function (c) {
+      if (!hit(c)) return c;
+      return newName === null ? ' ' : ' [' + kind + '] ' + newName + ' ';
+    }).join('|');
   }).filter(function (x) { return x !== null; }).join('\n');
 }
 
@@ -200,7 +212,7 @@ async function save() {
     text: q('#pText').value.replace(/\r/g, ''),
     photos: d.photos,
     links: d.links,
-    topic: { q: q('#pQ').value.trim(), memo: q('#pMemo').value.trim(), photos: d.topic.photos, links: d.topic.links, videoIds: d.topic.videoIds },
+    topic: { q: q('#pQ').value.trim(), memo: q('#pMemo').value.trim(), goals: q('#pGoals').value.trim(), page: q('#pTPage').value.trim().replace(/쪽$/, ''), photos: d.topic.photos, links: d.topic.links, videoIds: d.topic.videoIds },
     // 체크를 끈 영상만 기억 (나중에 영상 모음에 추가한 영상은 자동으로 마무리에 나옴)
     //   화면에 보였던 영상만 판단하고, 아직 못 불러온 영상은 예전 설정을 그대로 둠
     endHideIds: ((d.lesson && d.lesson.endHideIds) || []).filter(function (id) { return d.endListed.indexOf(id) === -1; })
@@ -239,7 +251,7 @@ async function leave() {
 }
 
 async function removeIt() {
-  if (!(await confirmBox('"' + d.lesson.title + '" 차시를 삭제할까요? 화두·판서 사진과 기사도 함께 지워집니다.', '삭제'))) return;
+  if (!(await confirmBox('"' + d.lesson.title + '" 차시를 삭제할까요? 인트로·판서 사진과 기사도 함께 지워집니다.', '삭제'))) return;
   try {
     const all = d.photos.concat(d.topic.photos, d.lesson.photos || [], topicOf(d.lesson).photos);
     const seen = {};
@@ -300,7 +312,7 @@ export function initPrep() {
     if (a === 'delete') return removeIt();
     if (a === 'pick-close') { b.closest('.pick').innerHTML = ''; return; }
 
-    // 화두
+    // 인트로
     if (a === 't-photo') { d.fileTarget = 'topic'; q('#pFile').click(); return; }
     if (a === 't-link') return linkPick(q('#pTopicPick'), 'topic');
     if (a === 't-video') return videoPick(q('#pTopicPick'), 'topic');
@@ -316,6 +328,8 @@ export function initPrep() {
       ta.focus(); ta.setSelectionRange(en + 2, en + 2); mark();
       return;
     }
+    if (a === 'cmp') { insertLine(ta, '왼쪽 제목 | 오른쪽 제목\n왼쪽 내용 | 오른쪽 내용'); mark(); toast('두 칸 비교 줄을 넣었어요. 글자를 바꿔 쓰세요'); return; }
+    if (a === 'brk') { insertLine(ta, '---'); mark(); return; }
     if (a === 'b-photo') return photoPick(q('#pBoardPick'));
     if (a === 'b-upload') { d.fileTarget = 'board'; q('#pFile').click(); return; }
     if (a === 'b-pick-photo') { insertLine(ta, '[사진] ' + d.photos[i].caption); q('#pBoardPick').innerHTML = ''; mark(); return; }
@@ -371,7 +385,7 @@ export function initPrep() {
     }
   });
 
-  // 끌어다 놓기: 화두 칸에 놓으면 화두, 판서 칸에 놓으면 판서
+  // 끌어다 놓기: 인트로 칸에 놓으면 인트로, 판서 칸에 놓으면 판서
   r.addEventListener('dragover', function (e) { if (d) e.preventDefault(); });
   r.addEventListener('drop', function (e) {
     if (!d || !e.dataTransfer || !e.dataTransfer.files.length) return;
@@ -380,7 +394,7 @@ export function initPrep() {
     upload(e.dataTransfer.files, blk && blk.getAttribute('data-blk') === 'board' ? 'board' : 'topic');
   });
 
-  // 붙여넣기: 판서 글 상자면 판서, 그 밖은 화두
+  // 붙여넣기: 판서 글 상자면 판서, 그 밖은 인트로
   document.addEventListener('paste', function (e) {
     if (state.view !== 'prep' || !d) return;
     const files = (e.clipboardData && e.clipboardData.files) || [];

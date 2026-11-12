@@ -28,7 +28,7 @@ function isOpen(gi, mi, o) {
 }
 
 function dots(l) {
-  return '<span class="dots" title="화두 · 판서 · 교과서 · 영상">' + SECS.map(function (s) {
+  return '<span class="dots" title="인트로 · 판서 · 복습 · 영상">' + SECS.map(function (s) {
     return '<i class="' + (hasSec(l, s.k) ? 'y' : '') + '"></i>';
   }).join('') + '</span>';
 }
@@ -78,7 +78,7 @@ export function renderHome(el) {
     h += '</div>';
   });
 
-  h += '<div class="legend">점 4개 = 화두 · 판서 · 교과서 · 영상 준비 여부 <i></i>준비됨</div>' +
+  h += '<div class="legend">점 4개 = 인트로 · 판서 · 복습(핵심어) · 영상 준비 여부 <i></i>준비됨</div>' +
     '<div class="home-foot">' +
     '<button class="mini" data-act="toc">목차 편집</button>' +
     '<button class="mini" data-act="lock">잠그기</button></div></div>';
