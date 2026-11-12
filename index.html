@@ -167,8 +167,8 @@ main{padding:20px 24px;max-width:1280px;margin:0 auto;}
   <div class="logo">🎬</div>
   <h1>도덕 수업 영상 모음</h1>
   <div class="header-actions">
-    <button class="hdr-btn" onclick="openGradeEdit()">🏫 <span class="btn-text">학년 편집</span></button>
-    <button class="hdr-btn" onclick="openToc()">📋 <span class="btn-text">목차 편집</span></button>
+    <!-- 학년·목차 편집은 수업 화면(lesson.html)의 "목차 편집"으로 옮겼습니다. -->
+    <a class="hdr-btn" href="lesson.html" style="text-decoration:none">📖 <span class="btn-text">수업 화면</span></a>
   </div>
 </header>
 
@@ -289,9 +289,9 @@ async function loadConfig() {
     if (snap.exists()) {
       const d = snap.data();
       if (d.grades?.length) grades = d.grades;
-      if (d.toc?.length)    toc    = d.toc;
-    } else {
-      await saveConfig();
+      // 목차는 수업 화면(lesson.html)에서 고치고, 여기서는 읽기만 합니다.
+      if (d.tocv2?.length)    toc = d.tocv2.map(g => (g.majors||[]).map(m => ({ major:m.major, minors:m.minors||[] })));
+      else if (d.toc?.length) toc = d.toc;
     }
   } catch(e) { console.error('config 로드 실패',e); }
 }
@@ -316,7 +316,7 @@ function renderMain() {
   const majors = toc[curGrade] || [];
   if (!majors.length) {
     document.getElementById('mainArea').innerHTML =
-      `<div class="empty-grade"><div class="ei">📭</div><div>목차가 없어요 — 목차 편집에서 추가해보세요</div></div>`;
+      `<div class="empty-grade"><div class="ei">📭</div><div>목차가 없어요 — 수업 화면의 목차 편집에서 추가해보세요</div></div>`;
     return;
   }
   document.getElementById('mainArea').innerHTML = majors.map((m, mi) => {
