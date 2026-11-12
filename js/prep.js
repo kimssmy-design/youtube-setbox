@@ -3,7 +3,7 @@
 import { state, lessonsOf, videosOf, minorName } from './state.js';
 import * as store from './store.js';
 import { fileToPhoto } from './photo.js';
-import { addYoutube, insertLine } from './media.js';
+import { addYoutube, insertLine, setDuration } from './media.js';
 import { endVideos, topicOf } from './run.js';
 import { unmatched } from './board.js';
 import { esc, safeUrl, toast, confirmBox } from './ui.js';
@@ -119,10 +119,11 @@ function paintEnd() {
   const vids = videosOf(d.at.gi, d.at.mi, d.at.si);
   d.endListed = vids.map(function (v) { return v.id; });
   q('#pEnd').innerHTML = vids.length
-    ? '<div class="pmini-t">체크한 영상이 수업 마지막에 나옵니다</div>' + vids.map(function (v) {
-      return '<label class="vrow"><input type="checkbox" data-end="' + esc(v.id) + '"' + (d.endIds.indexOf(v.id) !== -1 ? ' checked' : '') + '>' +
+    ? '<div class="pmini-t">체크한 영상이 수업 마지막에 나옵니다. 오른쪽 칸에 길이를 적으면 영상 모음에도 함께 저장돼요.</div>' + vids.map(function (v) {
+      return '<div class="vrow"><label><input type="checkbox" data-end="' + esc(v.id) + '"' + (d.endIds.indexOf(v.id) !== -1 ? ' checked' : '') + '>' +
         (v.videoId ? '<img src="https://img.youtube.com/vi/' + esc(v.videoId) + '/default.jpg" alt="">' : '<i class="ebs">EBS</i>') +
-        '<span>' + esc(v.title) + (v.duration ? ' <small>' + esc(v.duration) + '</small>' : '') + '</span></label>';
+        '<span>' + esc(v.title) + '</span></label>' +
+        '<input class="dur" data-dur="' + esc(v.id) + '" value="' + esc(v.duration || '') + '" placeholder="길이" aria-label="영상 길이" inputmode="numeric"></div>';
     }).join('')
     : '<div class="pmini-t">이 단원에 등록된 영상이 없어요. 유튜브 주소로 추가하면 영상 모음에도 등록됩니다.</div>';
 }
@@ -132,7 +133,8 @@ function videoPick(box, mode) {
   const vids = videosOf(d.at.gi, d.at.mi, d.at.si);
   box.innerHTML = '<div class="pick-t">유튜브 주소를 넣으면 영상 모음에도 함께 등록됩니다</div>' +
     '<input class="field" data-in="vurl" placeholder="https://youtu.be/…">' +
-    '<div class="pick-row"><input class="field" data-in="vtitle" placeholder="영상 제목 (비우면 자동으로 가져옵니다)"><button class="btn" data-p="v-add" data-mode="' + mode + '">추가</button></div>' +
+    '<div class="pick-row"><input class="field" data-in="vtitle" placeholder="영상 제목 (비우면 자동으로 가져옵니다)">' +
+    '<input class="field dur" data-in="vdur" placeholder="길이 2:00" inputmode="numeric"><button class="btn" data-p="v-add" data-mode="' + mode + '">추가</button></div>' +
     (mode !== 'end' && vids.length ? '<div class="pick-t">또는 이 단원에 이미 있는 영상</div>' +
       vids.map(function (v) {
         return '<button class="pick-i" data-p="v-pick" data-mode="' + mode + '" data-id="' + esc(v.id) + '">' + esc(v.title) + (v.duration ? ' (' + esc(v.duration) + ')' : '') + '</button>';
@@ -265,6 +267,13 @@ export function initPrep() {
       mark();
       return;
     }
+    if (t.hasAttribute('data-dur')) {
+      const v = vById(t.getAttribute('data-dur'));
+      if (!v) return;
+      setDuration(v, t.value).then(function (dur) { t.value = dur; toast(dur ? '길이 ' + dur + ' 저장했어요' : '길이를 지웠어요'); })
+        .catch(function (err) { t.value = v.duration || ''; toast(err.message); });
+      return;
+    }
     if (t.id === 'pFile') { upload(t.files, d.fileTarget); t.value = ''; return; }
     const kind = t.getAttribute('data-cap');
     if (kind) {
@@ -349,7 +358,7 @@ export function initPrep() {
       else {
         b.disabled = true;
         try {
-          v = await addYoutube(box.querySelector('[data-in="vurl"]').value, box.querySelector('[data-in="vtitle"]').value, d.at);
+          v = await addYoutube(box.querySelector('[data-in="vurl"]').value, box.querySelector('[data-in="vtitle"]').value, d.at, box.querySelector('[data-in="vdur"]').value);
         } catch (err) { b.disabled = false; toast(err.message); return; }
       }
       if (!v || !d) return;

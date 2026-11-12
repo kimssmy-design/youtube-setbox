@@ -83,6 +83,10 @@ export async function addVideo(data) {
   return Object.assign({ id: ref.id }, data);
 }
 
+export async function updateVideo(id, patch) {
+  await updateDoc(doc(db, VIDEO_COL, id), patch);
+}
+
 export async function addLesson(data) {
   const full = Object.assign({ kind: 'lesson', text: '', links: [], photos: [], createdAt: Date.now() }, data);
   const ref = await addDoc(collection(db, COL), full);

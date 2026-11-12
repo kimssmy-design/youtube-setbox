@@ -86,14 +86,15 @@ function stepHtml(x) {
 
 // 영상 카드 (판서 중간·화두·마무리 영상에서 함께 씀)
 export function videoCard(v, cls) {
-  const label = esc(v.title) + (v.duration ? ' <small>' + esc(v.duration) + '</small>' : '');
+  const label = esc(v.title) + (v.duration ? ' <em class="dur-t">' + esc(v.duration) + '</em>' : '');
+  const badge = v.duration ? '<b class="dur-b">⏱ ' + esc(v.duration) + '</b>' : '';
   if (v.videoId) {
     return '<button class="' + cls + '" data-act="play" data-id="' + esc(v.videoId) + '" data-title="' + esc(v.title) + '">' +
-      '<div class="mthumb"><img src="https://img.youtube.com/vi/' + esc(v.videoId) + '/mqdefault.jpg" alt=""><i>▶</i></div>' +
+      '<div class="mthumb"><img src="https://img.youtube.com/vi/' + esc(v.videoId) + '/mqdefault.jpg" alt=""><i>▶</i>' + badge + '</div>' +
       '<span>' + label + '</span></button>';
   }
   return '<a class="' + cls + '" href="' + esc(safeUrl(v.url)) + '" target="_blank" rel="noopener">' +
-    '<div class="mthumb ebs"><b>지식채널e</b><i>↗</i></div><span>' + label + '</span></a>';
+    '<div class="mthumb ebs"><b>지식채널e</b><i>↗</i>' + badge + '</div><span>' + label + '</span></a>';
 }
 
 // 화면에 나온 사진을 작은 그림에서 큰 그림으로 바꿔 줌
