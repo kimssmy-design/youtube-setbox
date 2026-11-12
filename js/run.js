@@ -22,11 +22,17 @@ export function topicVideos(l) {
   return topicOf(l).videoIds.map(videoById).filter(Boolean);
 }
 
-// 마무리 영상: 고른 적이 없으면 이 단원 영상 중 화두·판서에 쓰지 않은 것 전부
+// 마무리 영상
+//   준비 화면에서 뺀 영상(endHideIds)만 빼고 이 단원 영상을 모두 보여 줌
+//   → 나중에 영상 모음에 추가한 영상도 자동으로 나옴
+//   준비한 적이 없으면 화두·판서에 쓰지 않은 이 단원 영상 전부
 export function endVideos(l) {
   const unit = videosOf(l.gi, l.mi, l.si);
   if (l.virtual) return unit;
-  if (Array.isArray(l.endVideoIds)) {
+  if (Array.isArray(l.endHideIds)) {
+    return unit.filter(function (v) { return l.endHideIds.indexOf(v.id) === -1; });
+  }
+  if (Array.isArray(l.endVideoIds) && l.endVideoIds.length) { // 바로 전 버전에서 저장한 차시
     return unit.filter(function (v) { return l.endVideoIds.indexOf(v.id) !== -1; });
   }
   const used = board.boardVideoIds(l).concat(topicOf(l).videoIds);
@@ -60,9 +66,11 @@ function pos(l) {
   p.topic = Math.min(p.topic, maxIdx(l, 'topic'));
   p.board = Math.min(p.board, maxIdx(l, 'board'));
   const a = avail(l);
-  if (a.length && a.indexOf(p.sec) === -1) p.sec = a[0];
+  // 영상 단계는 내용이 없어도 눌러서 들어갈 수 있으므로 그대로 둠
+  if (a.length && a.indexOf(p.sec) === -1 && p.sec !== 'video') p.sec = a[0];
   return p;
 }
+function order(k) { return SECS.findIndex(function (s) { return s.k === k; }); }
 export function resetPos(id) { delete state.pos[id]; }
 
 export function next(l) {
@@ -70,8 +78,8 @@ export function next(l) {
   if (!a.length) return false;
   const i = getIdx(p, p.sec);
   if (i < maxIdx(l, p.sec)) { setIdx(p, p.sec, i + 1); return true; }
-  const j = a.indexOf(p.sec);
-  if (j < a.length - 1) { p.sec = a[j + 1]; if (p.sec === 'topic') p.topic = 0; return true; }
+  const after = a.filter(function (k) { return order(k) > order(p.sec); });
+  if (after.length) { p.sec = after[0]; if (p.sec === 'topic') p.topic = 0; return true; }
   return false;
 }
 export function prev(l) {
@@ -79,18 +87,19 @@ export function prev(l) {
   if (!a.length) return false;
   const i = getIdx(p, p.sec);
   if (i > 0) { setIdx(p, p.sec, i - 1); return true; }
-  const j = a.indexOf(p.sec);
-  if (j > 0) { p.sec = a[j - 1]; setIdx(p, p.sec, maxIdx(l, p.sec)); return true; }
+  const before = a.filter(function (k) { return order(k) < order(p.sec); });
+  if (before.length) { p.sec = before[before.length - 1]; setIdx(p, p.sec, maxIdx(l, p.sec)); return true; }
   return false;
 }
 export function jump(l, k) {
-  if (!hasSec(l, k)) return false;
+  if (!hasSec(l, k) && !(k === 'video' && !l.virtual)) return false;
   pos(l).sec = k;
   return true;
 }
 export function atEnd(l) {
   const a = avail(l), p = pos(l);
-  return !a.length || (p.sec === a[a.length - 1] && getIdx(p, p.sec) >= maxIdx(l, p.sec));
+  const later = a.filter(function (k) { return order(k) > order(p.sec); });
+  return !later.length && (a.indexOf(p.sec) === -1 || getIdx(p, p.sec) >= maxIdx(l, p.sec));
 }
 
 // 지금 수업 중인 차시 (단원 영상만 볼 때는 가상의 차시)
@@ -128,10 +137,21 @@ function bookHtml(l) {
     '<div class="bk-sub">' + (l.no ? esc(l.no) + ' ' : '') + esc(l.title) + '</div></div>';
 }
 
-function videoHtml(l) {
+// 영상 단계에 실제로 보여 줄 영상 (마무리로 고른 게 없으면 이 단원 영상 전부)
+function shownVideos(l) {
   const vids = endVideos(l);
-  if (!vids.length) return '<div class="empty"><div>이 단원에 등록된 영상이 없어요.</div></div>';
-  return '<div class="vgrid' + (vids.length === 1 ? ' one' : '') + '">' +
+  return vids.length ? vids : videosOf(l.gi, l.mi, l.si);
+}
+function videoHtml(l) {
+  const vids = shownVideos(l);
+  const link = '<a class="mini" href="videos.html" target="_blank" rel="noopener">영상 모음 열기 ↗</a>';
+  if (!vids.length) {
+    return '<div class="empty"><div>이 단원에 등록된 영상이 없어요.</div><div class="btn-row">' + link +
+      (l.virtual ? '' : '<button class="mini" data-act="prep">✎ 준비에서 유튜브 주소로 추가</button>') + '</div></div>';
+  }
+  const note = endVideos(l).length ? '' : '<span>마무리 영상으로 고른 것이 없어 이 단원 영상을 모두 보여 줘요</span>';
+  return '<div class="v-top">' + note + link + '</div>' +
+    '<div class="vgrid' + (vids.length === 1 ? ' one' : '') + '">' +
     vids.map(function (v) { return board.videoCard(v, 'vcard'); }).join('') + '</div>';
 }
 
@@ -143,16 +163,17 @@ export function renderRun(l) {
 
   const a = avail(l);
   const p = pos(l);
-  const cur = a.indexOf(p.sec);
+  const showing = a.length || p.sec === 'video';
   $('runSteps').innerHTML = l.virtual ? '' : SECS.map(function (s, i) {
     const has = a.indexOf(s.k) !== -1;
-    const cls = 'st' + (s.k === p.sec && has ? ' on' : '') + (has && a.indexOf(s.k) < cur ? ' done' : '');
-    return '<button class="' + cls + '" data-sec="' + s.k + '"' + (has ? '' : ' disabled title="준비한 내용이 없어요"') + '>' +
+    const open = has || s.k === 'video'; // 영상은 늘 누를 수 있음
+    const cls = 'st' + (s.k === p.sec && showing ? ' on' : '') + (has && order(s.k) < order(p.sec) ? ' done' : '') + (open && !has ? ' thin' : '');
+    return '<button class="' + cls + '" data-sec="' + s.k + '"' + (open ? '' : ' disabled title="준비한 내용이 없어요"') + '>' +
       NUM[i] + ' ' + s.n + '</button>';
   }).join('');
 
-  stage.className = 'stage sec-' + (a.length ? p.sec : 'none');
-  if (!a.length) {
+  stage.className = 'stage sec-' + (showing ? p.sec : 'none');
+  if (!showing) {
     stage.innerHTML = l.virtual ? videoHtml(l)
       : '<div class="empty"><div>아직 준비한 내용이 없어요.</div><button class="btn main" data-act="prep">준비하기</button></div>';
   } else if (p.sec === 'topic') {
@@ -175,16 +196,17 @@ export function renderRun(l) {
   nb.textContent = end ? (nl ? '다음 차시 ▶' : '끝') : '다음 ▶';
   nb.disabled = end && !nl;
   nb.setAttribute('data-next-lesson', end && nl ? nl.id : '');
-  $('prevBtn').disabled = !a.length || (cur <= 0 && getIdx(p, p.sec) === 0);
+  const earlier = a.filter(function (k) { return order(k) < order(p.sec); });
+  $('prevBtn').disabled = !earlier.length && getIdx(p, p.sec) === 0;
   let where = '';
-  if (a.length) {
+  if (showing) {
     const name = SECS.filter(function (s) { return s.k === p.sec; })[0].n;
     if (p.sec === 'board') {
       where = name + ' ' + p.board + ' / ' + maxIdx(l, 'board');
       if (state.boardPage && state.boardPage.pages > 1) where += ' · ' + state.boardPage.page + '쪽';
     }
     else if (p.sec === 'topic' && topicOf(l).photos.length > 1) where = name + ' ' + (p.topic + 1) + ' / ' + topicOf(l).photos.length;
-    else if (p.sec === 'video') where = name + ' ' + endVideos(l).length + '개';
+    else if (p.sec === 'video') where = name + ' ' + shownVideos(l).length + '개';
     else where = name;
   }
   $('where').textContent = where;

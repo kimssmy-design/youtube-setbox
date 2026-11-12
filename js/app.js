@@ -2,7 +2,7 @@
 import { state, onChange, lessonById } from './state.js';
 import * as store from './store.js';
 import * as run from './run.js';
-import { openPrep, initPrep, onPrepExit } from './prep.js';
+import { openPrep, initPrep, onPrepExit, prepVideosLoaded } from './prep.js';
 import { renderHome, rememberLast, toggleMajor } from './home.js';
 import { openPhotos, playVideo, closeViewer, viewerKey, initViewer } from './viewer.js';
 import { openBulk } from './bulk.js';
@@ -209,6 +209,7 @@ async function load() {
     state.videos = v;
     state.videosLoaded = true;
     render();
+    if (state.view === 'prep') prepVideosLoaded();
   }).catch(function (e) { console.warn('영상 목록 불러오기 실패', e); });
 }
 

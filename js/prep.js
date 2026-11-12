@@ -80,6 +80,14 @@ export function openPrep(lesson, where) {
   if (isNew) q('#pTitle').focus();
 }
 
+// 영상 목록을 뒤늦게 불러왔을 때 마무리 영상 칸을 다시 그림
+export function prepVideosLoaded() {
+  if (!d) return;
+  const base = d.isNew ? videosOf(d.at.gi, d.at.mi, d.at.si) : endVideos(d.lesson);
+  base.forEach(function (v) { if (d.endIds.indexOf(v.id) === -1) d.endIds.push(v.id); });
+  paintEnd();
+}
+
 // ── 목록 그리기
 function thumbHtml(p, kind, i) {
   return '<div class="pthumb"><img src="' + esc(p.thumb || '') + '" alt="">' +
@@ -109,6 +117,7 @@ function paintBoardMedia() {
 
 function paintEnd() {
   const vids = videosOf(d.at.gi, d.at.mi, d.at.si);
+  d.endListed = vids.map(function (v) { return v.id; });
   q('#pEnd').innerHTML = vids.length
     ? '<div class="pmini-t">체크한 영상이 수업 마지막에 나옵니다</div>' + vids.map(function (v) {
       return '<label class="vrow"><input type="checkbox" data-end="' + esc(v.id) + '"' + (d.endIds.indexOf(v.id) !== -1 ? ' checked' : '') + '>' +
@@ -190,7 +199,11 @@ async function save() {
     photos: d.photos,
     links: d.links,
     topic: { q: q('#pQ').value.trim(), memo: q('#pMemo').value.trim(), photos: d.topic.photos, links: d.topic.links, videoIds: d.topic.videoIds },
-    endVideoIds: d.endIds.slice()
+    // 체크를 끈 영상만 기억 (나중에 영상 모음에 추가한 영상은 자동으로 마무리에 나옴)
+    //   화면에 보였던 영상만 판단하고, 아직 못 불러온 영상은 예전 설정을 그대로 둠
+    endHideIds: ((d.lesson && d.lesson.endHideIds) || []).filter(function (id) { return d.endListed.indexOf(id) === -1; })
+      .concat(d.endListed.filter(function (id) { return d.endIds.indexOf(id) === -1; })),
+    endVideoIds: []
   };
   const miss = unmatched(Object.assign({}, d.at, data));
   if (miss.length && !(await confirmBox('판서에서 찾을 수 없는 자료 줄이 있어요: ' + miss.join(', ') + ' — 이 줄은 수업 때 건너뜁니다. 그대로 저장할까요?', '저장'))) return;

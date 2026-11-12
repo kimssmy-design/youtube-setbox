@@ -38,7 +38,7 @@ export function renderHome(el) {
   const o = opens();
   let h = '<div class="home-in"><div class="home-top"><div><h1>도덕 수업</h1>' +
     '<div class="home-sub">오늘 수업할 차시를 고르세요</div></div>' +
-    '<button class="mini" data-act="help">? 사용법</button></div>';
+    '<div class="home-tools"><a class="mini" href="videos.html">영상 모음</a><button class="mini" data-act="help">? 사용법</button></div></div>';
 
   const last = lessonById(lastLessonId());
   if (last) {
@@ -80,7 +80,6 @@ export function renderHome(el) {
 
   h += '<div class="legend">점 4개 = 화두 · 판서 · 교과서 · 영상 준비 여부 <i></i>준비됨</div>' +
     '<div class="home-foot">' +
-    '<a class="mini" href="videos.html">영상 모음</a>' +
     '<button class="mini" data-act="toc">목차 편집</button>' +
     '<button class="mini" data-act="lock">잠그기</button></div></div>';
   el.innerHTML = h;
