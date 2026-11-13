@@ -213,7 +213,7 @@ body.locked .gate{display:flex;}
 
 /* 마무리 영상 */
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(380px * var(--fs))),1fr));gap:22px;}
-.vgrid.one{grid-template-columns:minmax(0,min(100%,960px));justify-content:center;}
+.vgrid.one{grid-template-columns:minmax(0,min(100%,960px,calc((100vh - 370px) * 16 / 9)));justify-content:center;}
 .vcard{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;padding:0;text-align:left;text-decoration:none;color:var(--text);font-size:calc(clamp(15px,1.6vw,21px) * var(--fs));cursor:pointer;}
 .vcard:hover{box-shadow:0 4px 16px rgba(0,0,0,.14);}
 .vcard .mthumb{min-width:0;}
