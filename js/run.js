@@ -2,6 +2,7 @@
 // 위쪽 단계 이름을 누르면 그때그때 원하는 단계로 건너뛸 수 있습니다.
 import { state, lessonById, videosOf, minorName, nextLesson } from './state.js';
 import * as board from './board.js';
+import * as pen from './pen.js';
 import { esc, safeUrl } from './ui.js';
 
 // 위쪽에 보이는 단계
@@ -288,4 +289,11 @@ export function renderRun(l) {
     else where = name;
   }
   $('where').textContent = where;
+
+  // 펜: 화면별로 쓴 글씨를 보여 주고, 펜이 켜져 있으면 넘기기 버튼을 막음
+  let penKey = l.id + ':' + p.sec;
+  if (p.sec === 'board' && state.boardPage) penKey += ':' + state.boardPage.page;
+  if (p.sec === 'review' && state.reviewInfo) penKey += ':' + state.reviewInfo.page;
+  pen.sync(penKey, showing && !l.virtual && (p.sec === 'topic' || p.sec === 'board' || p.sec === 'review'));
+  if (pen.isOn()) { nb.disabled = true; $('prevBtn').disabled = true; }
 }

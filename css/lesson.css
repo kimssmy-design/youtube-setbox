@@ -356,3 +356,21 @@ body.locked .gate{display:flex;}
 /* 판서 화면 넘김 직전 안내 (작게) */
 .turn-cue{position:absolute;right:clamp(16px,3vw,40px);bottom:14px;background:#111;color:#fff;font-size:14px;font-weight:600;padding:6px 14px;border-radius:999px;opacity:.85;pointer-events:none;animation:cueIn .2s ease-out;}
 @keyframes cueIn{from{opacity:0;transform:translateY(6px);}to{opacity:.85;transform:none;}}
+/* 펜: 수업 화면 위에 바로 쓰기 */
+.pen-canvas{position:fixed;left:0;top:0;width:0;height:0;z-index:50;pointer-events:none;touch-action:none;}
+body:not([data-view="run"]) .pen-canvas,body:not([data-view="run"]) .pen-bar{display:none;}
+body.pen-on .pen-canvas{pointer-events:auto;cursor:crosshair;}
+.pen-bar{position:fixed;top:68px;left:50%;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:30px;box-shadow:0 4px 14px rgba(0,0,0,.14);padding:6px 10px;}
+.pen-bar[hidden]{display:none;}
+.pen-bar button{background:none;border:0;cursor:pointer;font:inherit;}
+.pen-bar .pc{width:24px;height:24px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 1px #bbb;}
+.pen-bar .pc.sel{box-shadow:0 0 0 2px #111;}
+.pen-bar .pw{width:30px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px;}
+.pen-bar .pw i{display:block;width:20px;background:#555;border-radius:4px;}
+.pen-bar .pw.sel{background:#eee;}
+.pen-bar .pw.sel i{background:#111;}
+.pen-bar .psep{width:1px;height:20px;background:var(--line);}
+.pen-bar .pt{font-size:13px;color:#333;padding:5px 9px;border-radius:14px;white-space:nowrap;}
+.pen-bar .pt.sel{background:#111;color:#fff;}
+.pen-bar .pt.off{background:#111;color:#fff;font-weight:700;}
+body.pen-on .run-bar .btn{opacity:.4;}

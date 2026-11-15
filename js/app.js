@@ -8,6 +8,7 @@ import { openPhotos, playVideo, closeViewer, viewerKey, initViewer } from './vie
 import { openBulk } from './bulk.js';
 import { openTocEditor } from './toc.js';
 import { passGate, lockNow } from './gate.js';
+import * as pen from './pen.js';
 import { openModal, closeModal, isModalOpen, isStickyModal } from './ui.js';
 
 const $ = function (id) { return document.getElementById(id); };
@@ -49,12 +50,14 @@ function render() {
 // ── 화면 이동
 function goHome() {
   closeViewer();
+  pen.reset();
   state.view = 'home';
   render();
   $('home').scrollTop = 0;
 }
 function startRun(id, fresh) {
   run.clearHold();
+  if (id !== state.runId || state.view !== 'run') pen.reset();
   if (fresh) run.resetPos(id);
   state.runId = id;
   state.view = 'run';
@@ -80,7 +83,7 @@ onPrepExit(function (lesson, how) {
 
 function step(dir) {
   const l = run.runLesson();
-  if (!l) return;
+  if (!l || pen.isOn()) return; // 펜을 쓰는 동안에는 넘기지 않음
   if (dir > 0 ? run.next(l) : run.prev(l)) run.renderRun(l);
 }
 
@@ -89,6 +92,7 @@ function openHelp() {
     '<h2>사용법</h2>' +
     '<ul class="help-list">' +
     '<li><b>수업하기</b>: 차시를 누르면 표지 → ① 인트로 → ② 판서 → ③ 복습 → ④ 영상 순서로 진행됩니다. 화면을 누르거나 "다음 ▶"(→ 키)를 누르면 다음으로, 마우스 오른쪽 클릭이나 ← 키는 되돌리기.</li>' +
+    '<li><b>펜</b>: 위쪽 "✎ 펜"(P 키)을 켜면 인트로·판서·복습 화면 위에 마우스나 손으로 바로 씁니다. 펜이 켜져 있는 동안은 넘어가지 않습니다. 쓴 글씨는 화면마다 남고, 차시를 나가면 지워집니다.</li>' +
     '<li><b>화면 넘김</b>: 판서가 다음 화면으로 넘어가기 전에 한 번 멈추고 아래에 안내가 뜹니다. 한 번 더 누르면 넘어갑니다.</li>' +
     '<li><b>빈칸</b>: 수업 중 "빈칸" 버튼(B 키)을 켜면 빨간 핵심어가 빈칸으로 먼저 나오고, 한 번 더 누르면 채워집니다. ③ 복습은 판서 전체를 빈칸으로 다시 띄워 하나씩 맞혀 봅니다.</li>' +
     '<li><b>순서 바꾸기</b>: 위쪽 단계 이름을 누르면 그 단계로 바로 갑니다. 영상을 먼저 보고 판서로 돌아와도 판서는 보던 데서 이어집니다. 숫자 키 1~4도 됩니다.</li>' +
@@ -135,9 +139,11 @@ function bind() {
   });
   $('nextBtn').onclick = function () {
     const nid = this.getAttribute('data-next-lesson');
+    if (pen.isOn()) return;
     if (nid) startRun(nid, true); else step(1);
   };
   $('prevBtn').onclick = function () { step(-1); };
+  $('penBtn').onclick = function () { pen.toggle(); };
   $('blankBtn').onclick = function () { const l = run.runLesson(); run.toggleBlank(l); if (l) run.renderRun(l); };
 
   stage.addEventListener('click', function (e) {
@@ -176,6 +182,8 @@ function bind() {
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     const l = run.runLesson();
     if (!l) return;
+    if (e.key === 'p' || e.key === 'P' || e.key === 'ㅔ') { pen.toggle(); return; }
+    if (pen.isOn()) { if (e.key === 'Escape') pen.toggle(); else e.preventDefault(); return; } // 펜을 쓰는 동안 넘기기 키는 무시
     if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ' || e.key === 'Enter') {
       if ((e.key === ' ' || e.key === 'Enter') && (tag === 'BUTTON' || tag === 'A')) return; // 버튼 위에서는 버튼 동작만
       e.preventDefault(); step(1);
@@ -191,6 +199,7 @@ function bind() {
 
   initViewer();
   initPrep();
+  pen.initPen(function () { const l = run.runLesson(); if (l && state.view === 'run') run.renderRun(l); });
 
   // 화면 크기·글꼴이 바뀌면 판서 쪽 나누기를 다시 계산
   let rt = null;
