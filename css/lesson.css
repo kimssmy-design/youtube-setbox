@@ -4,6 +4,8 @@
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;}
+html{-webkit-tap-highlight-color:transparent;}
+button,a,.stage{touch-action:manipulation;}
 body{font-family:'Noto Sans KR','Malgun Gothic',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
 button,input,select,textarea{font-family:inherit;}
 button{cursor:pointer;}
