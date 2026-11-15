@@ -342,7 +342,13 @@ export function renderBoard(el, lesson, n, blankOn) {
   el.innerHTML = html + '</div>';
   upgradePhotos(el);
   el.scrollTop = 0;
-  return { page: k + 1, pages: pages.length };
+  // 다음 클릭에서 화면이 바뀌는지 (바뀌기 전에 한 번 멈추려고)
+  let turn = false;
+  if (n > 0 && n < sts.length) {
+    const nr = model.items[sts[n].it].row;
+    turn = pg.rows.indexOf(nr) === -1;
+  }
+  return { page: k + 1, pages: pages.length, turn: turn, last: n > 0 && n >= sts.length };
 }
 
 // 빈칸 복습: 판서를 빈칸 상태로 다시 띄우고 누를 때마다 하나씩 채움

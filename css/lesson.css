@@ -353,3 +353,6 @@ body.locked .gate{display:flex;}
   .mcard{max-width:100%;}
   .mthumb{min-width:0;}
 }
+/* 판서 화면 넘김 직전 안내 (작게) */
+.turn-cue{position:absolute;right:clamp(16px,3vw,40px);bottom:14px;background:#111;color:#fff;font-size:14px;font-weight:600;padding:6px 14px;border-radius:999px;opacity:.85;pointer-events:none;animation:cueIn .2s ease-out;}
+@keyframes cueIn{from{opacity:0;transform:translateY(6px);}to{opacity:.85;transform:none;}}

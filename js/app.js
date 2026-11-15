@@ -54,6 +54,7 @@ function goHome() {
   $('home').scrollTop = 0;
 }
 function startRun(id, fresh) {
+  run.clearHold();
   if (fresh) run.resetPos(id);
   state.runId = id;
   state.view = 'run';
@@ -87,7 +88,8 @@ function openHelp() {
   const sheet = openModal(
     '<h2>사용법</h2>' +
     '<ul class="help-list">' +
-    '<li><b>수업하기</b>: 차시를 누르면 표지 → ① 인트로 → ② 판서 → ③ 복습 → ④ 영상 순서로 진행됩니다. 화면을 누르거나 "다음 ▶"(→ 키)를 누르면 다음으로, ← 키는 되돌리기.</li>' +
+    '<li><b>수업하기</b>: 차시를 누르면 표지 → ① 인트로 → ② 판서 → ③ 복습 → ④ 영상 순서로 진행됩니다. 화면을 누르거나 "다음 ▶"(→ 키)를 누르면 다음으로, 마우스 오른쪽 클릭이나 ← 키는 되돌리기.</li>' +
+    '<li><b>화면 넘김</b>: 판서가 다음 화면으로 넘어가기 전에 한 번 멈추고 아래에 안내가 뜹니다. 한 번 더 누르면 넘어갑니다.</li>' +
     '<li><b>빈칸</b>: 수업 중 "빈칸" 버튼(B 키)을 켜면 빨간 핵심어가 빈칸으로 먼저 나오고, 한 번 더 누르면 채워집니다. ③ 복습은 판서 전체를 빈칸으로 다시 띄워 하나씩 맞혀 봅니다.</li>' +
     '<li><b>순서 바꾸기</b>: 위쪽 단계 이름을 누르면 그 단계로 바로 갑니다. 영상을 먼저 보고 판서로 돌아와도 판서는 보던 데서 이어집니다. 숫자 키 1~4도 됩니다.</li>' +
     '<li><b>준비하기</b>: 차시 옆 ✎ 또는 수업 중 "✎ 준비"에서 인트로·판서·마무리 영상을 채웁니다. 비워 둔 단계는 건너뜁니다.</li>' +
@@ -150,6 +152,12 @@ function bind() {
     if (t || e.target.closest('a,button')) return;
     step(1); // 빈 곳을 누르면 다음
   });
+  // 마우스 오른쪽 클릭 = 한 단계 뒤로 (수업 화면에서만, 메뉴는 띄우지 않음)
+  stage.addEventListener('contextmenu', function (e) {
+    if (state.view !== 'run' || isModalOpen()) return;
+    e.preventDefault();
+    step(-1);
+  });
 
   $('fontUp').onclick = function () { state.fontScale = Math.min(1.8, +(state.fontScale + 0.1).toFixed(2)); render(); };
   $('fontDown').onclick = function () { state.fontScale = Math.max(0.7, +(state.fontScale - 0.1).toFixed(2)); render(); };
@@ -162,6 +170,8 @@ function bind() {
     if (viewerKey(e)) return;
     if (isModalOpen()) { if (e.key === 'Escape' && !isStickyModal()) closeModal(); return; }
     if (state.view !== 'run') return;
+    // 무선 포인터의 '슬라이드쇼 시작' 버튼(F5)으로 새로 고쳐져 수업 위치를 잃지 않게
+    if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R'))) { e.preventDefault(); return; }
     const tag = e.target && e.target.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
     const l = run.runLesson();
@@ -175,9 +185,8 @@ function bind() {
       if (run.jump(l, run.SECS[+e.key - 1].k)) { run.renderRun(l); stage.scrollTop = 0; }
     } else if (e.key === 'b' || e.key === 'B' || e.key === 'ㅠ') {
       run.toggleBlank(l); run.renderRun(l);
-    } else if (e.key === 'Escape') {
-      goHome();
     }
+    // Esc 는 수업 중에는 무시 (포인터 버튼으로 목록에 나가지 않게) — 목록은 '‹ 목록' 버튼으로
   });
 
   initViewer();

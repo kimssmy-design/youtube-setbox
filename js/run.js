@@ -82,9 +82,18 @@ function pos(l) {
 }
 export function resetPos(id) { delete state.pos[id]; }
 
+// 판서 화면이 바뀌기 직전에 한 번 멈춤: 멈춘 동안에는 안내만 보이고, 한 번 더 누르면 넘어감
+export function clearHold() { state.boardHold = false; }
+function wantHold(l, p, a) {
+  if (p.sec !== 'board' || state.boardHold || !state.boardPage) return false;
+  if (state.boardPage.turn) return true;
+  return state.boardPage.last && a.some(function (k) { return order(k) > order('board'); });
+}
 export function next(l) {
   const a = avail(l), p = pos(l);
   if (!a.length) return false;
+  if (wantHold(l, p, a)) { state.boardHold = true; return true; }
+  state.boardHold = false;
   const i = getIdx(p, p.sec);
   if (i < maxIdx(l, p.sec)) { setIdx(p, p.sec, i + 1); return true; }
   const after = a.filter(function (k) { return order(k) > order(p.sec); });
@@ -99,6 +108,7 @@ export function next(l) {
 export function prev(l) {
   const a = avail(l), p = pos(l);
   if (!a.length) return false;
+  if (state.boardHold) { state.boardHold = false; return true; } // 멈춤 안내만 거두기
   const i = getIdx(p, p.sec);
   if (i > 0) { setIdx(p, p.sec, i - 1); return true; }
   const before = a.filter(function (k) { return order(k) < order(p.sec); });
@@ -108,6 +118,7 @@ export function prev(l) {
 export function jump(l, k) {
   if (!hasSec(l, k) && !(k === 'video' && !l.virtual)) return false;
   const p = pos(l);
+  state.boardHold = false;
   p.sec = k;
   if (k === 'review') p.review = 0;
   return true;
@@ -121,6 +132,7 @@ export function atEnd(l) {
 // 빈칸 켜고 끄기: 지금까지 보여 준 줄은 그대로 유지
 export function toggleBlank(l) {
   const was = !!state.blank;
+  state.boardHold = false;
   if (l && !l.virtual) { const p = pos(l); p.board = board.convertPos(l, p.board, was, !was); }
   state.blank = !was;
   try { localStorage.setItem('lessonBlank', state.blank ? '1' : '0'); } catch (e) { /* 무시 */ }
@@ -233,6 +245,12 @@ export function renderRun(l) {
     fitTopic(stage);
   } else if (p.sec === 'board') {
     state.boardPage = board.renderBoard(stage, l, p.board, !!state.blank);
+    if (state.boardHold) {
+      const cue = document.createElement('div');
+      cue.className = 'turn-cue';
+      cue.textContent = state.boardPage.turn ? '한 번 더 누르면 다음 화면 ▶' : '판서 끝 · 한 번 더 누르면 복습 ▶';
+      stage.appendChild(cue);
+    }
   } else if (p.sec === 'review') {
     state.reviewInfo = board.renderReview(stage, l, p.review);
     if (!state.reviewMax) state.reviewMax = {};
@@ -246,7 +264,8 @@ export function renderRun(l) {
   const end = atEnd(l);
   const nl = nextLesson(l);
   const nb = $('nextBtn');
-  nb.textContent = end ? (nl ? '다음 차시 ▶' : '끝') : (p.sec === 'cover' ? '시작 ▶' : '다음 ▶');
+  if (p.sec !== 'board') state.boardHold = false;
+  nb.textContent = end ? (nl ? '다음 차시 ▶' : '끝') : (p.sec === 'cover' ? '시작 ▶' : (state.boardHold ? '다음 화면 ▶' : '다음 ▶'));
   nb.disabled = end && !nl;
   nb.setAttribute('data-next-lesson', end && nl ? nl.id : '');
   const earlier = a.filter(function (k) { return order(k) < order(p.sec); });
