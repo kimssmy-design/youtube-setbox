@@ -3,7 +3,7 @@ import { state, onChange, lessonById } from './state.js';
 import * as store from './store.js';
 import * as run from './run.js';
 import { openPrep, initPrep, onPrepExit, prepVideosLoaded } from './prep.js';
-import { renderHome, rememberLast, toggleMajor } from './home.js';
+import { renderHome, rememberLast, toggleMajor, closeAllMajors } from './home.js';
 import { openPhotos, playVideo, closeViewer, viewerKey, initViewer } from './viewer.js';
 import { openBulk } from './bulk.js';
 import { openTocEditor } from './toc.js';
@@ -51,6 +51,7 @@ function render() {
 function goHome() {
   closeViewer();
   pen.reset();
+  closeAllMajors(); // 목록으로 돌아오면 대단원은 항상 모두 접힘
   state.view = 'home';
   render();
   $('home').scrollTop = 0;

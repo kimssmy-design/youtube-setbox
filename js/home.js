@@ -10,8 +10,9 @@ export function rememberLast(id) {
   try { localStorage.setItem('lessonLast', id); } catch (e) { /* 무시 */ }
 }
 
-// 펼친 대단원: 사이트를 열 때는 모두 접힘. 펼친 것은 이번 접속 동안만 기억 (수업하고 목록으로 돌아와도 그대로)
+// 펼친 대단원: 목록 화면에 들어올 때마다 항상 모두 접힘 (목록 화면 안에서만 펼쳐 봄)
 const openNow = {};
+export function closeAllMajors() { Object.keys(openNow).forEach(function (k) { delete openNow[k]; }); }
 try { localStorage.removeItem('lessonOpen'); } catch (e) { /* 예전에 저장해 둔 펼침 기록 지우기 */ }
 function opens() { return openNow; }
 export function toggleMajor(gi, mi) {
