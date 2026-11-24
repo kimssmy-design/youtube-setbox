@@ -17,24 +17,32 @@
 
 <!-- 수업: 표지 → ① 인트로 ② 판서 ③ 복습 ④ 영상 -->
 <div id="run" class="screen run">
+  <!-- 위: 차시 이름만 (버튼은 손이 닿기 쉬운 아래 줄에 모음) -->
   <header class="run-top">
-    <button class="mini" id="runBack">‹ 목록</button>
     <div class="run-title" id="runTitle"></div>
-    <nav class="steps" id="runSteps" aria-label="수업 단계"></nav>
-    <div class="run-tools">
-      <button class="mini" id="blankBtn" title="핵심어를 빈칸으로 먼저 보여 주기 (B 키)">빈칸 끔</button>
-      <button class="mini" id="penBtn" title="화면 위에 바로 쓰기 (P 키)">✎ 펜</button>
-      <button class="mini" id="runPrep">✎ 준비</button>
-      <button class="mini" id="fontDown" aria-label="글씨 작게">가 −</button>
-      <button class="mini" id="fontUp" aria-label="글씨 크게">가 ＋</button>
-      <button class="mini" id="fullBtn">전체 화면</button>
-    </div>
   </header>
   <div class="stage" id="stage"></div>
   <footer class="run-bar">
+    <button class="mini" id="runBack">‹ 목록</button>
+    <span class="bsep"></span>
+    <nav class="steps" id="runSteps" aria-label="수업 단계"></nav>
+    <span class="bsep"></span>
+    <div class="run-tools">
+      <button class="mini" id="penBtn" title="화면 위에 바로 쓰기 (P 키)">✎ 펜</button>
+      <button class="mini" id="blankBtn" title="핵심어를 빈칸으로 먼저 보여 주기 (B 키)">빈칸 끔</button>
+      <button class="mini" id="fontDown" aria-label="글씨 작게">가 −</button>
+      <button class="mini" id="fontUp" aria-label="글씨 크게">가 ＋</button>
+      <div class="more">
+        <button class="mini" id="moreBtn" aria-label="더 보기">⋯</button>
+        <div class="more-menu" id="moreMenu" hidden>
+          <button id="runPrep">✎ 준비</button>
+          <button id="fullBtn">전체 화면</button>
+        </div>
+      </div>
+    </div>
+    <span class="where" id="where"></span>
     <button class="btn" id="prevBtn" aria-label="이전">◀</button>
     <button class="btn main" id="nextBtn">다음 ▶</button>
-    <span class="where" id="where"></span>
   </footer>
 </div>
 

@@ -61,6 +61,9 @@ function place() {
   const w = Math.round(r.width * dpr), h = Math.round(r.height * dpr);
   if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // 펜 도구 막대를 아래 버튼 줄 바로 위에 띄우려고 버튼 줄 높이를 알려 줌
+  const rb = document.querySelector('.run-bar');
+  if (rb) document.documentElement.style.setProperty('--barH', rb.offsetHeight + 'px');
 }
 
 function list() { return strokes[key] || (strokes[key] = []); }
