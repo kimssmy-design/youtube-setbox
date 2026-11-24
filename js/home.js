@@ -10,21 +10,16 @@ export function rememberLast(id) {
   try { localStorage.setItem('lessonLast', id); } catch (e) { /* 무시 */ }
 }
 
-// 펼쳐 둔 대단원 기억
-function opens() {
-  try { return JSON.parse(localStorage.getItem('lessonOpen') || '{}') || {}; } catch (e) { return {}; }
-}
+// 펼친 대단원: 사이트를 열 때는 모두 접힘. 펼친 것은 이번 접속 동안만 기억 (수업하고 목록으로 돌아와도 그대로)
+const openNow = {};
+try { localStorage.removeItem('lessonOpen'); } catch (e) { /* 예전에 저장해 둔 펼침 기록 지우기 */ }
+function opens() { return openNow; }
 export function toggleMajor(gi, mi) {
-  const o = opens();
   const k = gi + '-' + mi;
-  o[k] = !isOpen(gi, mi, o);
-  try { localStorage.setItem('lessonOpen', JSON.stringify(o)); } catch (e) { /* 무시 */ }
+  openNow[k] = !openNow[k];
 }
 function isOpen(gi, mi, o) {
-  const k = gi + '-' + mi;
-  if (k in o) return !!o[k];
-  const last = lessonById(lastLessonId());
-  return !!(last && last.gi === gi && last.mi === mi);
+  return !!o[gi + '-' + mi];
 }
 
 function dots(l) {
