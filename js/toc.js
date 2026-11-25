@@ -48,6 +48,36 @@ function bookFits(g) {
   return !same && g.majors.every(function (m, i) { return m.minors.length === book[i].minors.length; });
 }
 
+// 3학년: 도덕② 차례로 새로 만들기 (지금 목차와 영상·차시는 '…(2009)' 학년으로 옮겨 보관)
+const ARCHIVE = '(2009)';
+function book2Fits(g) {
+  if (!/3/.test(g.name) || g.name.indexOf(ARCHIVE) !== -1) return false;
+  const book = store.bookToc2();
+  const same = g.majors.length === book.length && g.majors.every(function (m, i) {
+    return m.name.trim() === book[i].major && m.minors.length === book[i].minors.length &&
+      m.minors.every(function (n, k) { return n.name.trim() === book[i].minors[k]; });
+  });
+  return !same;
+}
+function makeBook2() {
+  const g = draft[cur];
+  const fresh = {
+    name: g.name, o: null,
+    majors: store.bookToc2().map(function (m) { return { name: m.major, o: null, minors: m.minors.map(function (n) { return { name: n, o: null }; }) }; })
+  };
+  const keep = g.majors.length > 0 || hasContent(count(g.o));
+  if (keep) {
+    // 원래 번호(o)를 그대로 가진 채 이름만 바꿔 맨 뒤로 → 저장할 때 영상·차시가 이 학년을 따라감
+    g.name = g.name.trim() + ARCHIVE;
+    draft.splice(cur, 1, fresh);
+    draft.push(g);
+    toast('새 목차를 만들고, 지금 목차는 "' + g.name + '"로 옮겼어요. "저장"을 눌러야 반영됩니다');
+  } else {
+    draft.splice(cur, 1, fresh);
+    toast('도덕② 차례로 만들었어요. "저장"을 눌러야 반영됩니다');
+  }
+}
+
 function paint() {
   const g = draft[cur];
   let h = '<h2>목차 편집</h2>' +
@@ -62,6 +92,7 @@ function paint() {
       '<button class="ic" data-a="g-up" aria-label="앞으로">←</button><button class="ic" data-a="g-down" aria-label="뒤로">→</button>' +
       '<button class="ic" data-a="g-del" aria-label="학년 삭제">×</button></div>' +
       (bookFits(g) ? '<button class="dash" data-a="book" style="margin-top:8px">비상교육 도덕① 교과서 차례로 단원 이름 바꾸기</button>' : '') +
+      (book2Fits(g) ? '<button class="dash" data-a="book2" style="margin-top:8px">비상교육 도덕② 차례로 새로 만들기 (지금 목차·영상은 "' + esc(g.name.trim() + ARCHIVE) + '" 탭으로 보관)</button>' : '') +
       '<label class="field-label">단원</label>';
     g.majors.forEach(function (m, mi) {
       const a = ' data-mi="' + mi + '"';
@@ -196,6 +227,7 @@ export function openTocEditor() {
       g.majors.forEach(function (m, i) { m.name = book[i].major; m.minors.forEach(function (n, k) { n.name = book[i].minors[k]; }); });
       toast('교과서 차례로 이름을 바꿨어요. "저장"을 눌러야 반영됩니다');
     }
+    else if (a === 'book2') makeBook2();
     else if (a === 'g-add') { draft.push({ name: '', o: null, majors: [] }); cur = draft.length - 1; focusSel = 'input[data-t="g"]'; }
     else if (a === 'g-up') { if (cur > 0) { swap(draft, cur, -1); cur--; } }
     else if (a === 'g-down') { if (cur < draft.length - 1) { swap(draft, cur, 1); cur++; } }
