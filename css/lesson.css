@@ -221,12 +221,14 @@ body.locked .gate{display:flex;}
 .mthumb.ebs i{display:none;}
 
 /* 마무리 영상 */
-.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(380px * var(--fs))),1fr));gap:22px;}
-.vgrid.one{grid-template-columns:minmax(0,min(100%,960px,calc((100vh - 370px) * 16 / 9)));justify-content:center;}
-.vcard{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;padding:0;text-align:left;text-decoration:none;color:var(--text);font-size:calc(clamp(15px,1.6vw,21px) * var(--fs));cursor:pointer;}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),390px));gap:22px;justify-content:center;}
+.vgrid.one{grid-template-columns:minmax(0,min(100%,480px));}
+.vcard{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;padding:0;text-align:left;text-decoration:none;color:var(--text);font-size:17px;cursor:pointer;} /* 마무리 영상 카드는 글씨 크기(가＋) 영향 없음 */
 .vcard:hover{box-shadow:0 4px 16px rgba(0,0,0,.14);}
 .vcard .mthumb{min-width:0;}
-.vcard .mthumb i{width:72px;height:72px;font-size:26px;}
+.vcard .mthumb i{width:54px;height:54px;font-size:20px;}
+.vcard .mthumb .dur-b{font-size:13px;}
+.vcard span{font-size:17px;}
 .vcard span{padding:13px 16px;font-weight:500;line-height:1.45;}
 
 /* ── 준비 화면 */
