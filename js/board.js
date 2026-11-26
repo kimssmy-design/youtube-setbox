@@ -299,18 +299,46 @@ function paginate(el, model, opt) {
     return (it && it.sub === 'big') || (r > 0 && model.rows[r - 1].type === 'break');
   };
   const headBefore = function (k) { for (let j = k - 1; j >= 0; j--) if (isTopHead(model, idx[j])) return idx[j]; return -1; };
+  // 비교 표: k 줄이 속한 표의 머리 줄(idx 안의 위치)과 표 전체의 높이
+  const isCmp = function (k) { return k >= 0 && k < idx.length && model.rows[idx[k]].type === 'cmp'; };
+  const tableStart = function (k) {
+    if (!isCmp(k)) return -1;
+    let j = k;
+    while (j > 0 && isCmp(j - 1) && !model.rows[idx[j]].head && idx[j - 1] === idx[j] - 1) j--;
+    return j;
+  };
+  const tableHeight = function (s) {
+    let t = 0, j = s;
+    do { t += h[idx[j]]; j++; } while (j < idx.length && isCmp(j) && !model.rows[idx[j]].head && idx[j] === idx[j - 1] + 1);
+    return t;
+  };
 
   const pages = [];
   let k = 0;
   while (k < idx.length) {
     const start = k;
     const head = (pages.length && !isTopHead(model, idx[k])) ? headBefore(k) : -1;
-    const avail = H - (head !== -1 ? h[head] : 0);
+    // 표가 이어지는 쪽이면 표의 머리 줄을 맨 위에 다시 보여 줌
+    const ts = tableStart(k);
+    const thead = (ts !== -1 && ts < k && model.rows[idx[ts]].head) ? idx[ts] : -1;
+    const avail = H - (head !== -1 ? h[head] : 0) - (thead !== -1 ? h[thead] : 0);
     let used = 0;
     while (k < idx.length && (k === start || (!forced(k) && used + h[idx[k]] <= avail))) { used += h[idx[k]]; k++; }
+    // 표가 이 쪽에서 끊기는데 새 쪽 한 장에 다 들어가면, 표를 통째로 다음 쪽으로 넘김
+    //   표 바로 위의 소제목 줄(예: '(2) 내면의 고통')도 표와 함께 넘김
+    const leadsTable = function (j) { return j >= 0 && isCmp(j + 1) && model.rows[idx[j + 1]].head && model.rows[idx[j]].type === 'line'; };
+    if (k < idx.length && k > start && isCmp(k) && isCmp(k - 1)) {
+      const s = tableStart(k);
+      const s2 = leadsTable(s - 1) ? s - 1 : s;
+      const fresh = H - (isTopHead(model, idx[s2]) ? 0 : (headBefore(s2) !== -1 ? h[headBefore(s2)] : 0));
+      const need = tableHeight(s) + (s2 < s ? h[idx[s2]] : 0);
+      if (s2 > start && model.rows[idx[s]].head && need <= fresh) k = s2;
+      //   너무 길어 나뉘더라도, 이 쪽에 머리 줄만 남는다면 표를 다음 쪽에서 시작
+      else if (s2 > start && model.rows[idx[s]].head && k - 1 === s) k = s2;
+    }
     // 소제목만 쪽 끝에 홀로 남지 않게 다음 쪽으로 넘김
-    while (k < idx.length && k - start > 1 && isHeadRow(model, idx[k - 1]) && !forced(k)) k--;
-    pages.push({ rows: idx.slice(start, k), head: head });
+    while (k < idx.length && k - start > 1 && (isHeadRow(model, idx[k - 1]) || leadsTable(k - 1)) && !forced(k)) k--;
+    pages.push({ rows: idx.slice(start, k), head: head, thead: thead });
   }
   return pages.length ? pages : [{ rows: [], head: -1 }];
 }
@@ -338,6 +366,7 @@ export function renderBoard(el, lesson, n, blankOn) {
   let html = '<div class="board">';
   if (n === 0) html += '<div class="hint first">화면을 누르면 한 줄씩 나타납니다.</div>';
   if (pg.head !== -1) html += rowHtml(model, pg.head, function () { return { show: true, hid: null, bk: blankOn }; }, ' rep');
+  if (pg.thead > -1) html += rowHtml(model, pg.thead, function () { return { show: true, hid: null, bk: blankOn }; });
   pg.rows.forEach(function (r) { html += rowHtml(model, r, stOf); });
   el.innerHTML = html + '</div>';
   upgradePhotos(el);
@@ -383,6 +412,7 @@ export function renderReview(el, lesson, n) {
   const pg = pages[k];
   let html = '<div class="board review">' + prefix;
   if (pg.head !== -1) html += rowHtml(model, pg.head, function () { return { show: true, hid: null, bk: true, nomedia: true }; }, ' rep');
+  if (pg.thead > -1) html += rowHtml(model, pg.thead, function () { return { show: true, hid: null, bk: true, nomedia: true }; });
   pg.rows.forEach(function (r) { html += rowHtml(model, r, stOf); });
   el.innerHTML = html + '</div>';
   el.scrollTop = 0;
