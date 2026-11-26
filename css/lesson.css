@@ -122,11 +122,7 @@ body.locked .gate{display:flex;}
 .run-bar .btn.main{padding:15px 40px;font-size:17px;}
 .run-bar .mini{padding:11px 13px;font-size:14px;}
 .bsep{width:1px;height:28px;background:var(--line);flex-shrink:0;}
-.more{position:relative;}
-.more-menu{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,.14);padding:6px;display:flex;flex-direction:column;gap:2px;z-index:70;}
-.more-menu[hidden]{display:none;}
-.more-menu button{background:none;border:0;font:inherit;font-size:14px;padding:11px 16px;border-radius:7px;white-space:nowrap;text-align:left;cursor:pointer;color:#333;}
-.more-menu button:hover{background:var(--bg2);}
+#penBtn,#fontDown,#fontUp{min-width:44px;font-size:17px !important;line-height:20px;}
 .where{margin-left:auto;font-size:14px;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums;}
 
 /* 인트로 */

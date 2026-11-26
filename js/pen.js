@@ -31,7 +31,7 @@ export function sync(k, canUse) {
   if (btn) {
     btn.style.display = allowed ? '' : 'none';
     btn.classList.toggle('on', on);
-    btn.textContent = on ? '✎ 펜 켬' : '✎ 펜';
+    btn.textContent = '✎';
   }
   place();
   redraw();
@@ -45,7 +45,7 @@ function setOn(v) {
   document.body.classList.toggle('pen-on', on);
   if (bar) { bar.hidden = !on; paintBar(); }
   const btn = document.getElementById('penBtn');
-  if (btn) { btn.classList.toggle('on', on); btn.textContent = on ? '✎ 펜 켬' : '✎ 펜'; }
+  if (btn) { btn.classList.toggle('on', on); btn.textContent = '✎'; }
   onChange(on);
 }
 

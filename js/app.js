@@ -146,11 +146,6 @@ function bind() {
   };
   $('prevBtn').onclick = function () { step(-1); };
   $('penBtn').onclick = function () { pen.toggle(); };
-  // ⋯ 메뉴 (준비 · 전체 화면)
-  const moreMenu = $('moreMenu');
-  $('moreBtn').onclick = function (e) { e.stopPropagation(); moreMenu.hidden = !moreMenu.hidden; };
-  moreMenu.addEventListener('click', function () { moreMenu.hidden = true; });
-  document.addEventListener('click', function (e) { if (!moreMenu.hidden && !e.target.closest('.more')) moreMenu.hidden = true; });
   $('blankBtn').onclick = function () { const l = run.runLesson(); run.toggleBlank(l); if (l) run.renderRun(l); };
 
   stage.addEventListener('click', function (e) {
