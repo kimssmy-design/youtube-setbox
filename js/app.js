@@ -3,7 +3,7 @@ import { state, onChange, lessonById } from './state.js';
 import * as store from './store.js';
 import * as run from './run.js';
 import { openPrep, initPrep, onPrepExit, prepVideosLoaded } from './prep.js';
-import { renderHome, rememberLast, toggleMajor, closeAllMajors } from './home.js';
+import { renderHome, rememberLast, toggleMajor, toggleMinor, closeAllMajors } from './home.js';
 import { openPhotos, playVideo, closeViewer, viewerKey, initViewer } from './viewer.js';
 import { openBulk } from './bulk.js';
 import { openTocEditor } from './toc.js';
@@ -123,6 +123,7 @@ function bind() {
     else if (act === 'new') startPrep(null, { gi: gi, mi: mi, si: si }, 'home');
     else if (act === 'unit-video') startRun('unit:' + gi + ':' + mi + ':' + si, true);
     else if (act === 'major') { toggleMajor(gi, mi); render(); }
+    else if (act === 'minor') { toggleMinor(gi, mi, si); render(); }
     else if (act === 'grade') { state.sel.gi = +t.getAttribute('data-gi'); render(); }
     else if (act === 'bulk') openBulk({ gi: gi, mi: mi, si: si });
     else if (act === 'toc') openTocEditor();

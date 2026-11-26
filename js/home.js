@@ -12,7 +12,16 @@ export function rememberLast(id) {
 
 // 펼친 대단원: 목록 화면에 들어올 때마다 항상 모두 접힘 (목록 화면 안에서만 펼쳐 봄)
 const openNow = {};
-export function closeAllMajors() { Object.keys(openNow).forEach(function (k) { delete openNow[k]; }); }
+const openMinor = {};   // 대단원마다 펼친 중단원 하나 (gi-mi → si)
+export function closeAllMajors() {
+  Object.keys(openNow).forEach(function (k) { delete openNow[k]; });
+  Object.keys(openMinor).forEach(function (k) { delete openMinor[k]; });
+}
+// 중단원 접고 펴기: 한 대단원 안에서는 하나만 펼침
+export function toggleMinor(gi, mi, si) {
+  const k = gi + '-' + mi;
+  openMinor[k] = openMinor[k] === si ? -1 : si;
+}
 try { localStorage.removeItem('lessonOpen'); } catch (e) { /* 예전에 저장해 둔 펼침 기록 지우기 */ }
 function opens() { return openNow; }
 export function toggleMajor(gi, mi) {
@@ -57,11 +66,16 @@ export function renderHome(el) {
     h += '<div class="acc' + (open ? ' open' : '') + '"><button class="acc-h" data-act="major" data-mi="' + mi + '">' +
       '<span>' + esc(m.major) + '</span><small>차시 ' + nL + (nV ? ' · 영상 ' + nV : '') + ' ' + (open ? '▴' : '▾') + '</small></button>';
     if (open) {
+      const one = minorsOf(m).length === 1;   // 중단원이 하나뿐이면 바로 펼쳐 보여 줌
       minorsOf(m).forEach(function (name, si) {
         const list = lessonsOf(gi, mi, si);
         const vids = videosOf(gi, mi, si).length;
-        h += '<div class="mn"><span>' + esc(name || '') + '</span>' +
+        const mOpen = one || openMinor[gi + '-' + mi] === si;
+        h += '<div class="mn' + (mOpen ? ' open' : '') + '">' +
+          '<button class="mn-h" data-act="minor" data-mi="' + mi + '" data-si="' + si + '"' + (one ? ' disabled' : '') + '>' +
+          '<span>' + esc(name || '') + '</span><small>' + (list.length ? list.length + '차시' : '차시 없음') + (one ? '' : ' ' + (mOpen ? '▴' : '▾')) + '</small></button>' +
           (vids ? '<button class="mn-v" data-act="unit-video" data-mi="' + mi + '" data-si="' + si + '">영상 ' + vids + '개 ▶</button>' : '') + '</div>';
+        if (!mOpen) return;
         list.forEach(function (l) {
           h += '<div class="ls"><button class="ls-main" data-act="run" data-id="' + esc(l.id) + '"><b>' + esc(l.no || '') + '</b>' +
             '<span class="ls-t">' + esc(l.title) + '</span>' + dots(l) + '</button>' +
